@@ -10,6 +10,9 @@ runner_version=$(sed -n 's/^ARG RUNNER_VERSION=//p' "$here/actions-runner/Docker
 # As runner, as a job runs it: the runner writes its _diag folder in runner's home.
 expect "$vm" "the runner is the Dockerfile's release" "$runner_version" \
 	'sudo -u runner -H /home/runner/bin/Runner.Listener --version'
+# Node.js and npm's node-gyp, as on a GitHub-hosted runner: native modules build in a job.
+expect "$vm" "Node.js and node-gyp are there" ok \
+	'sudo -u runner -H sh -c "node --version >/dev/null && npm --version >/dev/null && command -v node-gyp >/dev/null || ls /usr/share/nodejs/node-gyp >/dev/null" && echo ok'
 # A job runs as runner, as on a GitHub-hosted runner: its home, sudo without a password, Docker.
 expect "$vm" "jobs run as runner, in sudo and docker" "runner 1001 /home/runner docker sudo" \
 	'echo "$(id -un runner) $(id -u runner) $(getent passwd runner | cut -d: -f6) $(id -nG runner | tr " " "\n" | grep -xE "docker|sudo" | sort | paste -sd " ")"'

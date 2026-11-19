@@ -7,7 +7,7 @@ published as `ghostdockhq/actions-runner` with the same tags as the other platfo
 | | |
 |---|---|
 | Runner | GitHub's release `RUNNER_VERSION` in the [Dockerfile](Dockerfile), by checksum, in `/home/runner` |
-| Tools beyond headless | `build-essential git-lfs openssl zip zstd jq`, and what the runner's `installdependencies.sh` adds |
+| Tools beyond headless | `build-essential git-lfs openssl zip zstd jq`, Node.js and npm (with `node-gyp`), and what the runner's `installdependencies.sh` adds |
 | The job's user | `runner` (uid 1001), home `/home/runner`, passwordless sudo, in `docker`; `ghost` stays the login user |
 | Per VM | only `ACTIONS_RUNNER_INPUT_JITCONFIG` in the VM's environment, the single-use registration the runner scale set gives each job VM |
 

@@ -38,16 +38,17 @@ ARG IMAGE_VERSION=""
 ARG IMAGE_CREATED=""
 ARG IMAGE_REVISION=""
 
-# The tools a workflow takes for granted beyond the headless image (the same list as the
-# Container host job runner's, GITHUB_ACTIONS_RUNNER_PACKAGES), and what the runner itself needs
-# (its installdependencies.sh: ICU and friends).
+# The tools a workflow takes for granted beyond the headless image: the job runner's list, Node.js
+# with npm (GitHub-hosted runners have them, and native modules build with npm's node-gyp: without
+# a node, better-sqlite3's install falls back to node-gyp and fails), and what the runner itself
+# needs (its installdependencies.sh: ICU and friends).
 RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,target=/run/ghostdock-build/ca-certificates.crt \
     --mount=type=bind,from=runner,source=/actions-runner.tar.gz,target=/run/ghostdock-build/actions-runner.tar.gz \
     export DEBIAN_FRONTEND=noninteractive \
  && /usr/lib/ghostdock/apt-snapshot begin "${UBUNTU_SNAPSHOT}" \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      build-essential git-lfs openssl zip zstd jq \
+      build-essential git-lfs openssl zip zstd jq nodejs npm \
  && install -d /home/runner \
  && tar -xzf /run/ghostdock-build/actions-runner.tar.gz -C /home/runner \
  && /home/runner/bin/installdependencies.sh \
