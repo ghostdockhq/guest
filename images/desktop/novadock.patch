@@ -1,0 +1,92 @@
+NovaDock in the browser desktop: Selkies resizes the X screen whenever the
+browser window changes size, and sets the window scale when a browser first
+connects. Place the dock again after a resize, skip placing it while the
+screen has no monitor, and restart the dock when the scale changes (GTK 3
+keeps the old buffer when scale and screen size change together). The
+launchpad uses a full-colour icon: the dock draws icons as images, so a
+symbolic one would not follow the theme.
+
+--- a/lib/dock/dock-window.vala
++++ b/lib/dock/dock-window.vala
+@@ -66,7 +66,7 @@
+ 
+             load_theme();
+             
+-            var launcher_item = new DockItem("novadock-launcher", "Applications", "view-app-grid-symbolic");
++            var launcher_item = new DockItem("novadock-launcher", "Applications", "applications-all");
+             launcher_item.pinned = true;
+             launcher_item.is_launcher = true;
+             items.append(launcher_item);
+@@ -81,6 +81,27 @@
+             if (!use_layer_shell) {
+                 stick();
+                 get_screen().size_changed.connect(position_dock);
++                /* size-changed comes before GDK has the new monitor geometry,
++                   and a RandR resize can drop and re-add the monitor: place
++                   the dock again once the monitors have settled. */
++                get_screen().monitors_changed.connect(position_dock_soon);
++                Gdk.Display.get_default().monitor_added.connect(() => position_dock_soon());
++                Gdk.Display.get_default().monitor_removed.connect(() => position_dock_soon());
++                /* GTK keeps the old buffer when the scale changes together
++                   with the screen size (Selkies first connecting, or a
++                   browser on another screen): start over at the new scale. */
++                int started_scale = -1;
++                Timeout.add(1000, () => { started_scale = get_scale_factor(); return Source.REMOVE; });
++                notify["scale-factor"].connect(() => {
++                    if (started_scale < 0 || get_scale_factor() == started_scale) return;
++                    try {
++                        Process.spawn_async(null, {"sh", "-c", "sleep 1; exec novadock"}, null, SpawnFlags.SEARCH_PATH, null, null);
++                    } catch (Error e) {
++                        warning("Cannot restart for the new scale: %s", e.message);
++                        return;
++                    }
++                    get_application().quit();
++                });
+             }
+ 
+             set_app_paintable(true);
+@@ -223,6 +244,10 @@
+             return int.max(total, 200);
+         }
+ 
++        private void position_dock_soon() {
++            Timeout.add(250, () => { position_dock(); return Source.REMOVE; });
++        }
++
+         /* move the dock window to its correct position on screen */
+         private void position_dock() {
+             if (use_layer_shell) {
+@@ -235,6 +260,7 @@
+             if (monitor == null) {
+                 monitor = display.get_monitor(0);
+             }
++            if (monitor == null) return;
+             var geometry = monitor.get_geometry();
+ 
+             int screen_width = geometry.width;
+@@ -266,6 +292,7 @@
+ 
+             var monitor = display.get_primary_monitor();
+             if (monitor == null) monitor = display.get_monitor(0);
++            if (monitor == null) return;
+             var geom = monitor.get_geometry();
+ 
+             /* if mouse is within trigger strip at the bottom edge */
+@@ -751,7 +778,7 @@
+                             // Send SIGKILL to force close the application
+                             string kill_cmd = "kill -9 %d".printf(pid);
+                             try {
+-                                Process.spawn_command_line_async(kill_cmd);
++                                Process.spawn_async(null, {"sh", "-c", "sleep 1; exec novadock"}, null, SpawnFlags.SEARCH_PATH, null, null);
+                             } catch (Error e) {
+                                 stderr.printf("Failed to force close application: %s\n", e.message);
+                             }
+@@ -779,7 +806,7 @@
+             load_theme();
+ 
+             items = new List<DockItem>();
+-            var launcher_item = new DockItem("novadock-launcher", "Applications", "view-app-grid-symbolic");
++            var launcher_item = new DockItem("novadock-launcher", "Applications", "applications-all");
+             launcher_item.pinned = true;
+             launcher_item.is_launcher = true;
+             items.append(launcher_item);

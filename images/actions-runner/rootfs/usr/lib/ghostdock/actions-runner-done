@@ -1,0 +1,12 @@
+#!/bin/sh
+# After actions-runner.service (its ExecStopPost, as root): the job is over, so the VM powers
+# off. A VM without a registration skipped the runner (ExecCondition: SERVICE_RESULT is
+# exec-condition) and stays up, and so does a VM that is shutting down anyway.
+case "${SERVICE_RESULT:-}" in
+exec-condition) exit 0 ;;
+esac
+if systemctl is-system-running 2>/dev/null | grep -q stopping; then
+	exit 0
+fi
+echo "the runner ended (${SERVICE_RESULT:-?}, ${EXIT_CODE:-?} ${EXIT_STATUS:-?}): powering off"
+exec systemctl --no-block poweroff

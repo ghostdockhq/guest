@@ -1,0 +1,25 @@
+Ghostdock guest
+Copyright (c) 2026 Brainchimps GmbH
+
+Our files in this repository (Dockerfiles, scripts, unit files, configuration, patches and the
+files under rootfs/) are licensed under the Apache License, Version 2.0 (LICENSE). The license
+grants no rights to the Ghostdock name or logo (its section 6).
+
+The images built from them contain software of others, each under its own license:
+
+- Ubuntu's packages (every image): each keeps its license in /usr/share/doc/<package>/copyright in
+  the image; their sources are in the Ubuntu archive (apt-get source). Ghostdock is not affiliated
+  with or endorsed by Canonical Ltd.; Ubuntu is a registered trademark of Canonical Ltd.
+- Docker Engine, CLI, containerd and the Compose and buildx plugins (every image): Docker's own
+  packages, Apache-2.0 (/usr/share/doc/docker-ce/copyright and the others').
+- GitHub Actions runner (actions-runner): https://github.com/actions/runner, MIT, in
+  /home/runner, as GitHub releases it. Ghostdock is not affiliated with or endorsed by GitHub, Inc.
+- Selkies and its Python dependencies (desktop): https://github.com/selkies-project/selkies,
+  MPL-2.0; each package keeps its license in /opt/selkies (its dist-info).
+- NovaDock (desktop): https://github.com/novik133/NovaDock, GPL-3.0. Its corresponding source is
+  the upstream commit pinned in images/desktop/Dockerfile (NOVADOCK_COMMIT) plus
+  images/desktop/novadock.patch in this repository. Its license is in /usr/share/doc/novadock.
+- xfce4-appmenu-plugin from vala-panel-appmenu (desktop): LGPL-3.0, Ubuntu's release
+  (/usr/share/doc/xfce4-appmenu-plugin/copyright) built with images/desktop/appmenu.patch in this
+  repository.
+- Firefox (desktop): Mozilla's package from packages.mozilla.org, MPL-2.0.

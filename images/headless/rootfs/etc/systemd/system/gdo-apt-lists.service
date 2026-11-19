@@ -1,0 +1,20 @@
+# The image ships without apt's package lists (they would be the build's,
+# from its archive snapshot), so `apt install` on a new VM would find
+# nothing. This fetches them once, right after boot, in the background:
+# Type=exec does not hold up the boot (or the healthcheck). apt-get run in
+# those first seconds fails on its lock instead of waiting; run it again a
+# moment later (images/validate.sh waits for this unit). Afterwards apt-daily.timer
+# keeps them current (apt.conf.d/20auto-upgrades). A failed fetch leaves the
+# unit inactive rather than failed; the next apt-daily run tries again.
+[Unit]
+Description=Fetch apt's package lists on a new VM
+After=network.target
+
+[Service]
+Type=exec
+ExecCondition=/bin/sh -c '! ls /var/lib/apt/lists/*_Packages* >/dev/null 2>&1'
+ExecStart=-/usr/bin/apt-get update -q -o Acquire::Retries=3
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

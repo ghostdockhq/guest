@@ -1,0 +1,17 @@
+# Drops the desktop's port for devices on the private network before Selkies
+# listens, so the desktop is reached only through gdo-ingress (desktop-guard).
+# Selkies requires it: without the rule, no desktop.
+[Unit]
+Description=Ghostdock: the desktop only through gdo-ingress on the private network
+DefaultDependencies=no
+After=local-fs.target
+Before=gdo-selkies.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/ghostdock/selkies.env
+ExecStart=/usr/lib/ghostdock/desktop-guard
+
+[Install]
+WantedBy=multi-user.target

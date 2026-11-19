@@ -1,0 +1,12 @@
+# The desktop's login session (gdo-desktop.service, PAMName=ghostdock-desktop):
+# no authentication, as with a display manager's autologin. The session part
+# is what makes it a login: pam_loginuid, the limits, and common-session,
+# whose pam_systemd registers the session with logind and starts ghost's
+# user manager. Not the "login" service: its pam_motd would run the
+# message-of-the-day scripts at every session start. pam_loginuid is
+# optional: it sets the audit login uid only, which a VM in a container (a
+# Docker or Incus host) may not be allowed to write.
+account  include   common-account
+session  optional  pam_loginuid.so
+session  required  pam_limits.so
+session  include   common-session

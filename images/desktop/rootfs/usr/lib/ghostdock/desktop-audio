@@ -1,0 +1,21 @@
+#!/bin/sh
+# Adds the two null sinks Selkies streams with: "output" (what the desktop
+# plays, sent to the browser) and "input" (the browser's microphone, which
+# apps record from its monitor), and makes them the defaults. Run by
+# gdo-desktop-audio.service, a unit of ghost's user manager, once
+# pipewire-pulse (PipeWire's PulseAudio server) runs.
+#
+# WirePlumber starts at the same time and keeps the defaults: until it has,
+# pipewire-pulse answers a default's change with "Not supported". So the
+# defaults are set again every 100 ms, for at most 10 seconds.
+set -eu
+for sink in output input; do
+	pactl list short sinks | grep -q "[[:space:]]$sink[[:space:]]" ||
+		pactl load-module module-null-sink sink_name="$sink" sink_properties=device.description="$sink" >/dev/null
+done
+i=0
+until pactl set-default-sink output 2>/dev/null && pactl set-default-source input.monitor 2>/dev/null; do
+	i=$((i + 1))
+	[ "$i" -le 100 ] || { echo "desktop-audio: the defaults could not be set within 10 s" >&2; exit 1; }
+	sleep 0.1
+done

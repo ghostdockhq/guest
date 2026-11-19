@@ -1,0 +1,21 @@
+#!/bin/sh
+# crun 1.21 opens the system bus when it manages cgroups through systemd.
+# This image has no bus. Drop that request and use the cgroup filesystem.
+set -- /usr/bin/crun --cgroup-manager cgroupfs "$@"
+i=3
+while [ "$i" -le "$#" ]; do
+	eval "a=\${$i}"
+	if [ "$a" = "--systemd-cgroup" ]; then
+		shift "$i"
+		i=$((i - 1))
+		continue
+	fi
+	if [ "$a" = "--cgroup-manager" ]; then
+		shift "$i"
+		shift "$i"
+		i=$((i - 1))
+		continue
+	fi
+	i=$((i + 1))
+done
+exec "$@"

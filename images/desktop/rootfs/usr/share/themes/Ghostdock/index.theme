@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Ghostdock
+Comment=Adwaita dark with Ghostdock's window frames
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Ghostdock
+MetacityTheme=Ghostdock
+IconTheme=Papirus-Dark
+CursorTheme=Adwaita
+ButtonLayout=close,minimize,maximize:

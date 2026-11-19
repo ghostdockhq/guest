@@ -1,0 +1,12 @@
+{
+  "name": "Desktop · Ghostdock",
+  "short_name": "Ghostdock",
+  "display": "fullscreen",
+  "background_color": "#0D1B2A",
+  "theme_color": "#0D1B2A",
+  "icons": [
+    { "src": "icon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ],
+  "start_url": "."
+}

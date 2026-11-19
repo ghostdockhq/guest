@@ -1,0 +1,49 @@
+#!/bin/sh
+# Selkies sets the desktop's density with two xfconf-query calls: /Xft/DPI
+# (96 per 1x of the browser's devicePixelRatio) and /Gtk/CursorThemeSize.
+# A DPI alone scales only text, so on a Retina screen the panels, window
+# frames and widgets stay small. /etc/ghostdock/desktop.env puts this
+# directory first on the session's PATH (Selkies runs xfconf-query with the
+# session's environment), and this wrapper turns the DPI into an integer
+# window scale plus the remainder:
+#
+#   DPI 192 → /Gdk/WindowScalingFactor 2, /Xft/DPI 96, xfwm4 theme -xhdpi
+#   DPI 144 → scale 1, /Xft/DPI 144
+#
+# Every other call goes to the real xfconf-query unchanged.
+real=/usr/bin/xfconf-query
+state="${XDG_RUNTIME_DIR:-/tmp}/ghostdock-desktop-scale"
+
+value=""
+prev=""
+for arg in "$@"; do
+	[ "$prev" = "-s" ] && value="$arg"
+	prev="$arg"
+done
+
+case " $* " in
+*" -c xsettings -p /Xft/DPI "*)
+	[ -n "$value" ] || exec "$real" "$@"
+	scale=$(( value >= 168 ? 2 : 1 ))
+	echo "$scale" > "$state"
+	"$real" -c xsettings -p /Gdk/WindowScalingFactor -n -t int -s "$scale" || exit
+	# xfwm4 draws its frames from pixmaps and does not follow the scale:
+	# switch between the theme and its -xhdpi variant.
+	theme=$("$real" -c xfwm4 -p /general/theme 2>/dev/null)
+	base=${theme%-xhdpi}
+	if [ "$scale" = 2 ] && [ -d "/usr/share/themes/$base-xhdpi/xfwm4" ]; then
+		want="$base-xhdpi"
+	else
+		want="$base"
+	fi
+	[ -n "$theme" ] && [ "$theme" != "$want" ] && "$real" -c xfwm4 -p /general/theme -s "$want"
+	exec "$real" -c xsettings -p /Xft/DPI -n -t int -s $(( value / scale ))
+	;;
+*" -c xsettings -p /Gtk/CursorThemeSize "*)
+	[ -n "$value" ] || exec "$real" "$@"
+	scale=$(cat "$state" 2>/dev/null || echo 1)
+	# GTK multiplies the cursor size by the window scale.
+	exec "$real" -c xsettings -p /Gtk/CursorThemeSize -n -t int -s $(( value * 3 / 4 / scale ))
+	;;
+esac
+exec "$real" "$@"

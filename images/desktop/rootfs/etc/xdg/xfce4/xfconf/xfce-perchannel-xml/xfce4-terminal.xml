@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The terminal in Ghostdock's colours (docs/brand.md: terminal ground,
+     fog text, a phosphor cursor). The menubar stays on: the menu bar at the
+     top of the screen shows it, not the window. -->
+<channel name="xfce4-terminal" version="1.0">
+  <property name="font-use-system" type="bool" value="true"/>
+  <property name="scrolling-bar" type="string" value="TERMINAL_SCROLLBAR_NONE"/>
+  <property name="misc-menubar-default" type="bool" value="true"/>
+  <property name="misc-cursor-blinks" type="bool" value="true"/>
+  <property name="misc-default-geometry" type="string" value="100x28"/>
+  <property name="color-foreground" type="string" value="#E8EEF3"/>
+  <property name="color-background" type="string" value="#071221"/>
+  <property name="color-cursor" type="string" value="#7CFFCB"/>
+  <property name="color-cursor-use-default" type="bool" value="false"/>
+  <property name="color-bold-use-default" type="bool" value="true"/>
+  <property name="color-selection-use-default" type="bool" value="false"/>
+  <property name="color-selection-background" type="string" value="#1F3A52"/>
+  <property name="color-palette" type="string" value="#1F2F40;#FF6B6B;#5BECB6;#FFB347;#6CA8FF;#C792EA;#5FD7E8;#C8D3DE;#5C6F82;#FF8A8A;#7CFFCB;#FFCB7A;#94C2FF;#DDB6F2;#8BE9F5;#FFFFFF"/>
+</channel>

@@ -1,0 +1,70 @@
+/* Ghostdock: styles that must win over the applications' own. They style
+   their widgets above the theme's priority, so these live in the user's
+   CSS: the terminal's padding, and the menu bar (xfce4-panel). */
+vte-terminal {
+  padding: 8px 10px;
+}
+
+/* The menu bar at the top of the screen (xfce4-panel, panel-1): dark and
+   flat, a little translucent over the wallpaper. The panel never has the
+   focus, so GTK styles it as :backdrop: the rules name that state too. */
+.xfce4-panel.background,
+.xfce4-panel.background:backdrop {
+  background-color: rgba(24, 27, 33, 0.86);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.xfce4-panel *,
+.xfce4-panel *:backdrop,
+.xfce4-panel image,
+.xfce4-panel image:backdrop {
+  color: #eceff4;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+}
+.xfce4-panel button,
+.xfce4-panel button:backdrop {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 5px;
+  padding: 0 7px;
+}
+.xfce4-panel button:hover { background: rgba(255, 255, 255, 0.10); }
+.xfce4-panel button:checked,
+.xfce4-panel button:checked:backdrop,
+.xfce4-panel button:active { background: rgba(255, 255, 255, 0.16); }
+.xfce4-panel menubar,
+.xfce4-panel menubar:backdrop {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+.xfce4-panel menubar > menuitem,
+.xfce4-panel menubar > menuitem:backdrop {
+  padding: 0 8px;
+  min-height: 0;
+  border-radius: 5px;
+}
+.xfce4-panel menubar > menuitem:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.xfce4-panel menubar > menuitem:hover,
+.xfce4-panel menubar > menuitem:hover:backdrop {
+  box-shadow: none;
+}
+
+/* Menus everywhere: square at the top, where they hang from the menu bar or
+   the pointer, rounded at the bottom, on a soft shadow. GTK rounds a menu
+   only when the compositor is on and its popup window is drawn with
+   transparency. */
+.csd.popup decoration,
+window.popup decoration {
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+menu,
+.menu,
+.context-menu {
+  border-radius: 0 0 6px 6px;
+  padding: 5px 0;
+}

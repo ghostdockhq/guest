@@ -1,0 +1,6 @@
+// As on an Ubuntu server: apt-daily.timer keeps the package lists current
+// (about twice a day, and after a stopped VM wakes), and unattended-upgrades
+// installs security updates. A new VM has no lists at all until
+// gdo-apt-lists.service fetches them.
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";

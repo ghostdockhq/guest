@@ -1,0 +1,21 @@
+#!/bin/sh
+# Ends what is left of the desktop's login session once its session manager
+# exited (Log Out, a crash, a stop of gdo-desktop.service): run as root by
+# the unit's ExecStopPost=, before Restart= logs ghost in again.
+#
+# The session's programs run in its own scope (session-<id>.scope), outside
+# the unit, so stopping the unit does not stop them, and logind keeps a
+# closed session's processes (KillUserProcesses=no, Ubuntu's default, which
+# SSH logins need for tmux and nohup). With a display manager they would die
+# with the X server, restarted at every login; Xvfb stays, so without this
+# the dock, the menu bar's helpers and every open window would survive into
+# the next session.
+#
+# It stops the session's scope, not the session: logind ignores
+# `loginctl terminate-session` for a session already closing, which this one
+# is once its leader exited. The stop waits until the processes are gone.
+set -eu
+loginctl list-sessions --no-legend | while read -r id _; do
+	[ "$(loginctl show-session "$id" -p Service --value 2>/dev/null)" = ghostdock-desktop ] || continue
+	systemctl stop "$(loginctl show-session "$id" -p Scope --value)"
+done

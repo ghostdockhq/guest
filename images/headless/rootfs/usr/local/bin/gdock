@@ -1,0 +1,59 @@
+#!/bin/sh
+# The ghostdock CLI on a Server: the image holds only this launcher, so a CLI is never as old as
+# the image. The first run installs the latest release for this user, every run hands over to it,
+# and at most once a day it updates in the background. The real binary stays off PATH, so this
+# always runs first. GHOSTDOCK_NO_AUTO_UPDATE=1 keeps the installed version.
+set -eu
+
+: "${HOME:?The ghostdock launcher needs HOME.}"
+dir="${XDG_DATA_HOME:-$HOME/.local/share}/ghostdock/bin"
+real="$dir/ghostdock"
+stamp="$dir/.last-update-check"
+
+# The API of the app this VM belongs to. A login shell has it already; other shells (`vm command
+# run`, a service) read only this one line, never the VM's other variables.
+if [ -z "${GHOSTDOCK_API_URL:-}" ] && [ -r /run/ghostdock/shell.env ]; then
+	url=$(sed -n "s/^export GHOSTDOCK_API_URL='\(.*\)'\$/\1/p" /run/ghostdock/shell.env)
+	if [ -n "$url" ]; then
+		GHOSTDOCK_API_URL=$url
+		export GHOSTDOCK_API_URL
+	fi
+fi
+
+# install.sh is on the domain itself: https://api.<domain> installs from https://<domain>.
+site=https://ghostdock.ai
+case "${GHOSTDOCK_API_URL:-}" in
+https://api.*)
+	rest=${GHOSTDOCK_API_URL#https://api.}
+	site="https://${rest%%/*}"
+	;;
+esac
+
+if [ ! -x "$real" ]; then
+	printf '  Installing the ghostdock CLI…\n' >&2
+	tmp=$(mktemp -d)
+	trap 'rm -rf "$tmp"' EXIT
+	# Downloaded first: a connection cut off halfway runs nothing. install.sh checks the release
+	# against its checksums.
+	if ! curl -fsSL --retry 2 -o "$tmp/install.sh" "$site/install.sh" ||
+		! GHOSTDOCK_INSTALL_DIR="$dir" GHOSTDOCK_NO_COMPLETION=1 sh "$tmp/install.sh" 2>"$tmp/log"; then
+		cat "$tmp/log" >&2 2>/dev/null || true
+		printf '  ✗ Could not install the ghostdock CLI. Check the VM can reach the internet, then run this again.\n' >&2
+		exit 1
+	fi
+	rm -rf "$tmp"
+	trap - EXIT
+	touch "$stamp"
+elif [ -z "${GHOSTDOCK_NO_AUTO_UPDATE:-}" ] && [ -z "$(find "$stamp" -mmin -1440 2>/dev/null)" ]; then
+	touch "$stamp"
+	# Its own session: a VM's command session ends its children when the command returns. A running
+	# CLI keeps working, because an update replaces the file and never writes into it.
+	setsid nohup "$real" update </dev/null >/dev/null 2>&1 &
+fi
+
+# This launcher updates, so the CLI's own "a newer version is out" line has nothing to add, and
+# the image brings tab completion, so login has nothing to offer.
+GHOSTDOCK_NO_UPDATE_CHECK=1
+GHOSTDOCK_NO_COMPLETION=1
+export GHOSTDOCK_NO_UPDATE_CHECK GHOSTDOCK_NO_COMPLETION
+exec "$real" "$@"

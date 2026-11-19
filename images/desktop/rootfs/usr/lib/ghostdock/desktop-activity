@@ -1,0 +1,33 @@
+#!/bin/sh
+# Tells gdo-guest when someone last used the desktop: input on the
+# X display (a key, a click, a pointer move: Selkies delivers the browser's
+# input as X input) or sound playing on the sink Selkies streams. Every 10
+# seconds it writes /run/ghostdock-desktop/activity:
+#
+#   port=<the port the desktop is served on>
+#   active=<unix ms of the last input or sound>
+#
+# gdo-guest reports the desktop as used when "active" moved since its last
+# report, and as untracked when the file was not written for 60 seconds. An
+# open tab's stream is not use: gdo-ingress stops counting the desktop's port
+# while this file is fresh. Run by gdo-desktop-activity.service, as ghost.
+set -u
+file=/run/ghostdock-desktop/activity
+port=${SELKIES_PORT:?SELKIES_PORT is not set}
+#
+# The last input is now minus the X server's idle time, both in milliseconds.
+# They are read a moment apart, so the result wobbles by a few milliseconds
+# from one reading to the next with no input at all: a newer "active" by less
+# than a second is that wobble, not use (gdo-guest would report it as use).
+active=$(date +%s%3N)
+while :; do
+	now=$(date +%s%3N)
+	if idle=$(xprintidle 2>/dev/null) && [ "$idle" -ge 0 ] 2>/dev/null; then
+		[ $((now - idle)) -gt $((active + 1000)) ] && active=$((now - idle))
+	fi
+	if pactl list short sinks 2>/dev/null | awk '$2 == "output" && $NF == "RUNNING" { found = 1 } END { exit !found }'; then
+		active=$now
+	fi
+	printf 'port=%s\nactive=%s\n' "$port" "$active" >"$file.tmp" && mv -f "$file.tmp" "$file"
+	sleep 10
+done

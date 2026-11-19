@@ -1,0 +1,69 @@
+/* Selkies' sidebar in Ghostdock's colors (brand/tokens.css, docs/brand.md):
+ * night grounds, fog text, the phosphor accent instead of Selkies' pink and
+ * violet. Selkies themes everything through these variables; this file is
+ * linked after its stylesheet, so the same selectors win. */
+:root,
+.theme-dark {
+  --accent: #7cffcb;
+  --accent-strong: #a6ffdc;
+  --accent-text: #7cffcb;
+  --accent-text-strong: #b8ffe3;
+  --accent-soft: #7cffcb24;
+  --accent-border: #7cffcb73;
+  --violet: #9fb3c8;
+  --violet-strong: #e8eef3;
+  --wordmark-from: #e8eef3;
+  --wordmark-to: #e8eef3;
+  --bg: #071221;
+  --surface: #0d1b2a;
+  --surface-alt: #16263a;
+  --surface-inset: #071221;
+  --border-soft: #1f2f40;
+  --border-strong: #5c6f82;
+  --text: #e8eef3;
+  --text-muted: #9fb3c8;
+  --item-bg-hover: #1f2f40;
+  --button-bg: #7cffcb;
+  --button-text: #0d1b2a;
+  --tooltip-bg: #16263a;
+  --stat-series-1: #7cffcb;
+  --stat-series-2: #ffb347;
+  --gamepad-shell-fill: #16263a;
+  --gamepad-shell-stroke: #1f2f40;
+  --gamepad-pad-fill: #0e9f78;
+  --gamepad-pad-stroke: #7cffcb;
+  --gamepad-pad-pressed-fill: #7cffcb;
+  --gamepad-stick-base-fill: #1f2f40;
+  --gamepad-stick-top-fill: #5c6f82;
+  --gamepad-stick-top-stroke: #9fb3c8;
+}
+
+.theme-light {
+  --accent: #0e9f78;
+  --accent-strong: #0b7f60;
+  --accent-text: #0b7f60;
+  --accent-text-strong: #08624a;
+  --accent-soft: #0e9f781a;
+  --accent-border: #0e9f7866;
+  --violet: #5c6f82;
+  --violet-strong: #0d1b2a;
+  --wordmark-from: #0d1b2a;
+  --wordmark-to: #0d1b2a;
+  --bg: #f1f4f7;
+  --surface: #fff;
+  --surface-alt: #f1f4f7;
+  --text: #0d1b2a;
+  --text-muted: #5c6f82;
+  --button-bg: #0d1b2a;
+  --button-text: #fff;
+  --button-hover-bg: #16263a;
+  --tooltip-bg: #0d1b2a;
+  --stat-series-1: #0e9f78;
+  --stat-series-2: #c7791a;
+  --gamepad-pad-fill: #20bc8c;
+  --gamepad-pad-stroke: #0e9f78;
+  --gamepad-pad-pressed-fill: #0b7f60;
+  --gamepad-stick-base-fill: #c6cad3;
+  --gamepad-stick-top-fill: #5c6f82;
+  --gamepad-stick-top-stroke: #0d1b2a;
+}

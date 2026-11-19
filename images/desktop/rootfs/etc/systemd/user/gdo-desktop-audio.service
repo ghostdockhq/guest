@@ -1,0 +1,15 @@
+# The desktop's sound devices: the two null sinks Selkies streams with, as
+# the defaults (desktop-audio). A unit of ghost's user manager, next to the
+# PipeWire it configures; enabled for every user by the Dockerfile.
+[Unit]
+Description=Ghostdock: the desktop's sound devices for Selkies
+Requires=pipewire-pulse.service
+After=pipewire-pulse.service wireplumber.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/ghostdock/desktop-audio
+
+[Install]
+WantedBy=default.target

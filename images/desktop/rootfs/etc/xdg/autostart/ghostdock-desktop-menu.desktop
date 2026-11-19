@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostdock desktop menu
+Comment=The menu bar's Desktop menus when the desktop is focused
+Exec=/usr/lib/ghostdock/desktop-menu
+NoDisplay=true
+OnlyShowIn=XFCE;
+X-XFCE-Autostart-Override=true

@@ -1,0 +1,22 @@
+{
+  "registry-mirrors": ["http://169.254.1.1:5000"],
+  "insecure-registries": ["169.254.1.1:5000"],
+  "features": {
+    "containerd-snapshotter": true
+  },
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+  "cgroup-parent": "/gdo-user",
+  "default-runtime": "crun",
+  "runtimes": {
+    "crun": {
+      "path": "/usr/local/bin/crun-cgroupfs"
+    }
+  },
+  "log-driver": "local",
+  "log-opts": {
+    "max-size": "20m",
+    "max-file": "5"
+  },
+  "shutdown-timeout": 10,
+  "userland-proxy": false
+}

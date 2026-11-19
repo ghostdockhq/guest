@@ -1,0 +1,12 @@
+[Unit]
+Description=Ghostdock: prepare the desktop's X server directory and cookie
+After=local-fs.target
+Before=gdo-xvfb.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/ghostdock/desktop-prepare
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+# The desktop's display: a virtual X server without a GPU (a microVM has
+# none). It starts large; Selkies resizes it to the browser window.
+[Unit]
+Description=Ghostdock: virtual display :1 for the desktop
+Requires=gdo-desktop-prepare.service
+After=gdo-desktop-prepare.service
+
+[Service]
+User=ghost
+EnvironmentFile=/etc/ghostdock/desktop.env
+ExecStart=/usr/bin/Xvfb :1 -auth /run/ghostdock-desktop/Xauthority \
+  -screen 0 3840x2160x24 -dpi 96 \
+  +extension COMPOSITE +extension DAMAGE +extension GLX +extension RANDR \
+  +extension RENDER +extension MIT-SHM +extension XFIXES +extension XTEST \
+  +iglx +render -nolisten tcp -shmem
+ExecStartPost=/usr/lib/ghostdock/wait-for-x
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

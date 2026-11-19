@@ -1,0 +1,3 @@
+/* Ghostdock is dark already: applications that ask for the dark variant
+   (gtk-application-prefer-dark-theme) get the same stylesheet. */
+@import url("gtk.css");

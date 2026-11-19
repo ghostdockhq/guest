@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- System defaults for GTK settings: the Ghostdock theme (Adwaita dark with
+     our frames, rootfs/usr/share/themes/Ghostdock), Papirus icons, Inter. The
+     window scale and DPI follow the browser: Selkies sets them through
+     /usr/lib/ghostdock/desktop-bin/xfconf-query. Gtk/Modules exports
+     application menus to the menu bar (appmenu-gtk3-module, NovaBar). -->
+<channel name="xsettings" version="1.0">
+  <property name="Net" type="empty">
+    <property name="ThemeName" type="string" value="Ghostdock"/>
+    <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+    <property name="EnableEventSounds" type="bool" value="false"/>
+  </property>
+  <property name="Gtk" type="empty">
+    <property name="FontName" type="string" value="Inter Variable 10"/>
+    <property name="MonospaceFontName" type="string" value="JetBrains Mono 10"/>
+    <property name="CursorThemeName" type="string" value="Adwaita"/>
+    <property name="CursorThemeSize" type="int" value="24"/>
+    <property name="DecorationLayout" type="string" value="close,minimize,maximize:"/>
+    <property name="DialogsUseHeader" type="bool" value="true"/>
+    <property name="ApplicationPreferDarkTheme" type="bool" value="true"/>
+    <property name="Modules" type="string" value="appmenu-gtk-module"/>
+    <property name="ShellShowsMenubar" type="bool" value="true"/>
+  </property>
+  <property name="Xft" type="empty">
+    <property name="Antialias" type="int" value="1"/>
+    <property name="Hinting" type="int" value="1"/>
+    <property name="HintStyle" type="string" value="hintslight"/>
+    <!-- Greyscale: subpixel colour fringes do not survive video encoding. -->
+    <property name="RGBA" type="string" value="none"/>
+  </property>
+</channel>

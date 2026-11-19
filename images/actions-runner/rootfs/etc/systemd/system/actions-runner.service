@@ -1,0 +1,26 @@
+[Unit]
+Description=GitHub Actions runner: one job, then the VM powers off
+Documentation=https://docs.ghostdock.ai
+# gdo-guest is ready once the host's first config is applied: the VM env is in /run/ghostdock.
+After=gdo-guest.service docker.service network-online.target
+Wants=docker.service network-online.target
+
+[Service]
+Type=simple
+User=runner
+Group=runner
+WorkingDirectory=/home/runner
+# The VM env: the runner scale set gives each job VM its single-use registration as
+# ACTIONS_RUNNER_INPUT_JITCONFIG, which run.sh reads as its --jitconfig.
+EnvironmentFile=-/run/ghostdock/env
+Environment=HOME=/home/runner
+# A VM without a registration (a plain Server of this image) skips the runner and stays up.
+ExecCondition=/bin/sh -c 'test -n "$${ACTIONS_RUNNER_INPUT_JITCONFIG:-}"'
+ExecStart=/home/runner/run.sh
+# One job: when the runner ends, the VM powers off, and an ephemeral VM is then deleted.
+ExecStopPost=+/usr/lib/ghostdock/actions-runner-done
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

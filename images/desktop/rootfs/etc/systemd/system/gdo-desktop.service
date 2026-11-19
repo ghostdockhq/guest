@@ -1,0 +1,39 @@
+# ghost's desktop session, logged in as a display manager does: a logind
+# session (PAMName=, the PAM service ghostdock-desktop) of type x11 on the
+# display gdo-xvfb runs, with ghost's user manager, /run/user/1000 and the
+# session D-Bus shared with ghost's SSH logins. It runs the X session script
+# of Debian's display managers (/etc/X11/Xsession, as LightDM does), which
+# hands the session's variables to the user manager and D-Bus and starts
+# XFCE with startxfce4. desktop-keyring gives ghost a login keyring that
+# needs no password, once. It gets the VM env, as a shell does: it is the
+# user's session, and apps started from it should see the variables.
+#
+# Log Out ends the session: desktop-session-end then stops what is left of
+# it, and Restart= logs ghost in again, as a display manager's autologin does.
+[Unit]
+Description=Ghostdock: desktop session of user ghost (XFCE)
+Requires=gdo-xvfb.service
+After=gdo-xvfb.service systemd-user-sessions.service user@1000.service
+
+[Service]
+User=ghost
+PAMName=ghostdock-desktop
+WorkingDirectory=~
+# Read by pam_systemd: a graphical session, not the default of a service.
+Environment=XDG_SESSION_TYPE=x11 XDG_SESSION_CLASS=user
+EnvironmentFile=/etc/ghostdock/desktop.env
+EnvironmentFile=-/run/ghostdock/env
+# The VM env is in memory: after a boot it exists once
+# gdo-guest has the host's first config, usually within a second. Wait for
+# it, but not for gdo-guest's readiness, which a failing volume holds: the
+# desktop still comes up, without the variables, after 15 s. systemd reads
+# the EnvironmentFile= for each command, so the session gets the file.
+ExecStartPre=-/usr/bin/timeout 15 /bin/sh -c "until [ -e /run/ghostdock/env ]; do sleep 0.1; done"
+ExecStartPre=/usr/lib/ghostdock/desktop-keyring
+ExecStart=/etc/X11/Xsession startxfce4
+ExecStopPost=+/usr/lib/ghostdock/desktop-session-end
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+# Selkies streams display :1 and its audio to the browser and sends input
+# back, on the port in selkies.env (the Dockerfile's DESKTOP_PORT, which the
+# ghostdock.urls.desktop.port label names too). Its own login is off: it
+# is reached only through gdo-ingress, on the private VM URL titled
+# Desktop, which signs the user in, or on the private network's HTTPS name,
+# which checks the device's organization. gdo-desktop-guard keeps devices off
+# the port directly. Its same-origin check on the websocket stays on.
+# Settings: SELKIES_<name> (selkies --help).
+[Unit]
+Description=Ghostdock: Selkies, the desktop in the browser
+Requires=gdo-xvfb.service gdo-desktop-guard.service
+Wants=gdo-desktop.service
+After=gdo-xvfb.service gdo-desktop-guard.service user@1000.service
+
+[Service]
+User=ghost
+WorkingDirectory=/home/ghost
+EnvironmentFile=/etc/ghostdock/desktop.env
+EnvironmentFile=/etc/ghostdock/selkies.env
+Environment=SELKIES_ADDR=0.0.0.0 SELKIES_ENABLE_BASIC_AUTH=false
+# Its sidebar says Ghostdock, without the Selkies logo.
+Environment=SELKIES_UI_TITLE=Ghostdock SELKIES_UI_SHOW_LOGO=false
+ExecStart=/opt/selkies/bin/selkies
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

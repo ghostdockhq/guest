@@ -1,0 +1,11 @@
+#!/bin/sh
+# Prepares a boot of the desktop: the X server's directory on /run (a tmpfs,
+# so it is new each boot) with a fresh X cookie that only ghost and root can
+# read, and the X socket directory. Run by gdo-desktop-prepare.service.
+set -eu
+dir=/run/ghostdock-desktop
+install -d -m 0700 -o ghost -g ghost "$dir"
+install -d -m 1777 /tmp/.X11-unix
+rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+cookie=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+runuser -u ghost -- xauth -q -f "$dir/Xauthority" add :1 . "$cookie"

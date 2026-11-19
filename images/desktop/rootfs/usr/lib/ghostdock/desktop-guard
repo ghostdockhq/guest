@@ -1,0 +1,34 @@
+#!/bin/sh
+# Keeps devices on the private network off the desktop's port: they
+# reach the desktop only through gdo-ingress, on its private URL or its HTTPS
+# name (<vm>--<org>.<net domain>), where the user's login or the device's
+# organization is checked and TLS gives Selkies a secure context. Selkies has
+# no login of its own.
+#
+# Inside the VM, the guest translates a device to 198.18.0.0/15 (its
+# organization's client number). gdo-ingress's browser path arrives as
+# 198.18.0.0, client number 0, which no device ever has; its private URLs
+# arrive from 169.254.1.1, outside the range. So: drop the port for that
+# range, except 198.18.0.0. Everything else of the VM stays as it is.
+#
+# Usage: desktop-guard [port]. Without a port, SELKIES_PORT (selkies.env).
+# The user is root in the VM and can remove the table: that only gives up
+# their own browser's protection.
+set -eu
+port=${1:-${SELKIES_PORT:-}}
+case $port in
+'' | *[!0-9]*)
+	echo "desktop-guard: no port (SELKIES_PORT)" >&2
+	exit 1
+	;;
+esac
+nft -f - <<RULES
+table inet gdo_desktop_guard {}
+delete table inet gdo_desktop_guard
+table inet gdo_desktop_guard {
+	chain input {
+		type filter hook input priority filter - 5; policy accept;
+		ip saddr 198.18.0.0/15 ip saddr != 198.18.0.0 tcp dport $port counter drop
+	}
+}
+RULES

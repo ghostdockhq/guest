@@ -1,0 +1,63 @@
+xfce4-appmenu-plugin's desktop menus (the menu bar with the desktop focused).
+The Files, Documents, … items hand the launcher the menu helper, not a
+widget, so every file item crashed the plugin (gtk_widget_get_display on a
+plain object); hand it the menu widget. A file
+with no application for its type launched NULL and crashed too: do nothing
+then. A file's underscores no longer turn into mnemonics in its menu label.
+
+diff --git a/lib/helper-desktop.vala b/lib/helper-desktop.vala
+index 7df8cb1..393e35e 100644
+--- a/lib/helper-desktop.vala
++++ b/lib/helper-desktop.vala
+@@ -72,21 +72,22 @@ namespace Appmenu
+         }
+         internal void activate_menu_id(SimpleAction action, Variant? param)
+         {
+-            Launcher.activate_menu_launch_id(action,param,this);
++            Launcher.activate_menu_launch_id(action,param,widget);
+         }
+         internal void activate_menu_uri(SimpleAction action, Variant? param)
+         {
+-            Launcher.activate_menu_launch_uri(action,param,this);
++            Launcher.activate_menu_launch_uri(action,param,widget);
+         }
+         internal void activate_menu_command(SimpleAction action, Variant? param)
+         {
+-            Launcher.activate_menu_launch_command(action,param,this);
++            Launcher.activate_menu_launch_command(action,param,widget);
+         }
+         public void activate_menu_launch_type(SimpleAction action, Variant? param)
+         {
+             unowned string type = param.get_string();
+             var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
+-            MenuMaker.launch(info,null,widget);
++            if (info != null)
++                MenuMaker.launch(info,null,widget);
+         }
+         public void activate_desktop(SimpleAction action, Variant? param)
+         {
+@@ -198,7 +199,7 @@ namespace Appmenu
+                                                FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+                     if (!info.get_is_hidden())
+                     {
+-                        var item = new GLib.MenuItem(info.get_display_name(),null);
++                        var item = new GLib.MenuItem(info.get_display_name().replace("_","__"),null);
+                         item.set_action_and_target("menu.launch-uri", "s", file.get_uri() );
+                         menu.append_item(item);
+                     }
+diff --git a/lib/launcher.c b/lib/launcher.c
+index c1f12f2..c4e0c99 100644
+--- a/lib/launcher.c
++++ b/lib/launcher.c
+@@ -38,6 +38,11 @@ void child_spawn_func(void *data)
+ bool vala_panel_launch(GDesktopAppInfo *app_info, GList *uris, GtkWidget *parent)
+ {
+ 	g_autoptr(GError) err            = NULL;
++	if (app_info == NULL)
++	{
++		g_warning("No application to launch\n");
++		return false;
++	}
+ 	g_autoptr(GAppLaunchContext) cxt = G_APP_LAUNCH_CONTEXT(
+ 	    gdk_display_get_app_launch_context(gtk_widget_get_display(parent)));
+ 	bool ret = g_desktop_app_info_launch_uris_as_manager(G_DESKTOP_APP_INFO(app_info),

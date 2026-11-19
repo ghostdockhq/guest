@@ -1,0 +1,21 @@
+# Writes when someone last used the desktop (input or sound) for gdo-guest,
+# which reports it to the host: the VM's idle clock follows use, not the
+# open tab's stream. Without it gdo-guest reports nothing and the
+# Desktop URL's traffic counts as activity again, so a crash never stops a
+# desktop in use.
+[Unit]
+Description=Ghostdock: report the desktop's use (input and sound) for idle stop
+Requires=gdo-xvfb.service
+After=gdo-xvfb.service gdo-desktop-prepare.service user@1000.service
+
+[Service]
+User=ghost
+EnvironmentFile=/etc/ghostdock/desktop.env
+EnvironmentFile=/etc/ghostdock/selkies.env
+ExecStartPre=/usr/lib/ghostdock/wait-for-x
+ExecStart=/usr/lib/ghostdock/desktop-activity
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

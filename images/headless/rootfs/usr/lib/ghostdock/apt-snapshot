@@ -1,0 +1,46 @@
+#!/bin/sh
+# Points apt at one snapshot of the Ubuntu archive while an image is built,
+# and back at the live archive afterwards, so a VM's own `apt install`
+# gets current packages. Used by the platform images' Dockerfiles only.
+#
+#   apt-snapshot begin <yyyymmddThhmmssZ>   (empty: keep the live archive)
+#   apt-snapshot end
+set -eu
+sources=/etc/apt/sources.list.d/ubuntu.sources
+saved=/etc/apt/ubuntu.sources.live
+# The snapshot service is HTTPS only, and a fresh image has no CA store yet:
+# the Dockerfile mounts a bundle at this path while apt runs, outside the CA
+# store that the ca-certificates package then writes.
+build_conf=/etc/apt/apt.conf.d/00ghostdock-build
+bundle=/run/ghostdock-build/ca-certificates.crt
+
+case "${1:-}" in
+begin)
+	snapshot="${2:-}"
+	[ -n "$snapshot" ] || exit 0
+	# Only the main archive has snapshots; ubuntu-ports (arm64) has none.
+	grep -q 'http://archive.ubuntu.com/ubuntu/' "$sources" || exit 0
+	cp "$sources" "$saved"
+	# The snapshot service answers single files with 502/503 now and then; one
+	# such file would fail the whole build. apt retries each download with a
+	# growing delay (at most a minute) instead.
+	{
+		echo "Acquire::https::CaInfo \"$bundle\";"
+		echo 'Acquire::Retries "12";'
+		echo 'Acquire::Retries::Delay::Maximum "60";'
+	} >"$build_conf"
+	sed -i \
+		-e "s|http://archive.ubuntu.com/ubuntu/|https://snapshot.ubuntu.com/ubuntu/$snapshot/|" \
+		-e "s|http://security.ubuntu.com/ubuntu/|https://snapshot.ubuntu.com/ubuntu/$snapshot/|" \
+		"$sources"
+	;;
+end)
+	rm -f "$build_conf"
+	[ -f "$saved" ] || exit 0
+	mv "$saved" "$sources"
+	;;
+*)
+	echo "usage: apt-snapshot begin <snapshot> | end" >&2
+	exit 2
+	;;
+esac

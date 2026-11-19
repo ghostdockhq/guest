@@ -1,0 +1,4 @@
+# Ubuntu's firefox package only installs the snap; Mozilla's wins.
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000

@@ -1,0 +1,13 @@
+#!/bin/sh
+# Waits until the X server on $DISPLAY answers, so units ordered after
+# gdo-xvfb.service start against a running display. At most 30 seconds.
+# Xvfb cannot tell systemd that it is ready (it has no sd_notify, and
+# -displayfd would need a wrapper around the server), so this asks it, every
+# 50 ms: the server is up within a fraction of a second, and the rest of the
+# desktop waits for this check.
+i=0
+until xset q >/dev/null 2>&1; do
+	i=$((i + 1))
+	[ "$i" -le 600 ] || { echo "X on $DISPLAY did not answer within 30 s" >&2; exit 1; }
+	sleep 0.05
+done

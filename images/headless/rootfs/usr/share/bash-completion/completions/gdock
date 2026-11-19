@@ -1,0 +1,12 @@
+# Tab completion for the ghostdock CLI, loaded at the first TAB. The CLI writes the real script,
+# so it always matches the installed version. Until the first run has installed the CLI there is
+# nothing to complete, and a TAB never starts an install; this stays in place and asks again.
+_ghostdock_load_completion() {
+	local real="${XDG_DATA_HOME:-$HOME/.local/share}/ghostdock/bin/ghostdock"
+	[ -x "$real" ] || return 0
+	eval "$("$real" completion bash 2>/dev/null)"
+	# 124: bash starts the completion again, now with the real one.
+	declare -F __start_ghostdock >/dev/null && return 124
+	return 0
+}
+complete -o default -F _ghostdock_load_completion ghostdock gdock

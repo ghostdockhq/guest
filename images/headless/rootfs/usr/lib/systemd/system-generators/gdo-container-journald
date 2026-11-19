@@ -1,0 +1,24 @@
+#!/bin/sh
+# journald.conf cannot carry ConditionVirtualization. Sysbox puts /dev/null at
+# /dev/kmsg, and journald exits when it cannot poll that file, so a container
+# boot never reaches running. This writes ReadKMsg=no under /run only then.
+# A microVM has a real /dev/kmsg, the generator writes nothing, and journald
+# reads the kernel log as usual.
+#
+# Boot leaves GDO_JOURNALD_DROPIN_DIR unset. Tests set it so they do not
+# write into the machine's /run.
+set -eu
+dir=${GDO_JOURNALD_DROPIN_DIR:-/run/systemd/journald.conf.d}
+if ! command -v systemd-detect-virt >/dev/null 2>&1; then
+	exit 0
+fi
+if systemd-detect-virt --container --quiet; then
+	mkdir -p -- "$dir"
+	cat >"$dir/gdo-read-kmsg.conf" <<'EOF'
+# Written at boot in a container. Sysbox's /dev/kmsg is /dev/null.
+[Journal]
+ReadKMsg=no
+EOF
+	chmod 0644 "$dir/gdo-read-kmsg.conf"
+fi
+exit 0

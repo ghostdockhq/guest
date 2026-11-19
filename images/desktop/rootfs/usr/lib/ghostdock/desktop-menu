@@ -1,0 +1,50 @@
+#!/bin/sh
+# Gives the desktop its own menu bar: Desktop, Files, Documents, Music,
+# Pictures, Video (the appmenu plugin's desktop menus). The plugin shows them
+# for a desktop window only if that window names no GTK application bus;
+# xfdesktop's does, so the bar showed "xfdesktop" with New and Quit. This
+# removes the name from xfdesktop's desktop windows, again whenever the
+# window list changes (xfdesktop makes new windows when the screen changes).
+# Started by /etc/xdg/autostart/ghostdock-desktop-menu.desktop.
+#
+# The plugin reads a window only when the active window changes (or a window
+# closes). At login the desktop is often active before the name is gone, so
+# the bar kept "Xfce Desktop" until the first app closed. When the stripped
+# window is the active one, refresh() sets the active window to None for a
+# moment and back: the plugin looks again, and nothing on screen moves.
+refresh() {
+	python3 - "$1" <<-'EOF'
+	import ctypes, sys, time
+	x = ctypes.CDLL("libX11.so.6")
+	x.XOpenDisplay.restype = ctypes.c_void_p
+	x.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+	x.XDefaultRootWindow.restype = ctypes.c_ulong
+	x.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+	x.XInternAtom.restype = ctypes.c_ulong
+	x.XChangeProperty.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong,
+		ctypes.c_ulong, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+	x.XFlush.argtypes = [ctypes.c_void_p]
+	d = x.XOpenDisplay(None)
+	if not d: sys.exit(1)
+	root = x.XDefaultRootWindow(d)
+	active = x.XInternAtom(d, b"_NET_ACTIVE_WINDOW", 0)
+	# type WINDOW (33), format 32, PropModeReplace
+	def put(*ids): v = (ctypes.c_long * len(ids))(*ids); x.XChangeProperty(d, root, active, 33, 32, 0, v, len(ids)); x.XFlush(d)
+	ids = [int(i, 16) for i in sys.argv[1].split(",")]
+	put(0, *ids[1:])
+	time.sleep(1)
+	put(*ids)
+	EOF
+}
+strip() {
+	for w in $(xdotool search --class xfdesktop 2>/dev/null); do
+		xprop -id "$w" _NET_WM_WINDOW_TYPE 2>/dev/null | grep -q _NET_WM_WINDOW_TYPE_DESKTOP || continue
+		xprop -id "$w" _GTK_UNIQUE_BUS_NAME 2>/dev/null | grep -q '=' || continue
+		xprop -id "$w" -remove _GTK_UNIQUE_BUS_NAME
+		# "window id # 0x1c00007, 0x1e00003": xfwm4 writes the active window first.
+		ids=$(xprop -root _NET_ACTIVE_WINDOW 2>/dev/null | sed -n 's/.*# //p' | tr -d ' ')
+		[ "${ids%%,*}" = "$(printf '0x%x' "$w")" ] && refresh "$ids"
+	done
+}
+strip
+xprop -root -spy _NET_CLIENT_LIST | while read -r _; do strip; done

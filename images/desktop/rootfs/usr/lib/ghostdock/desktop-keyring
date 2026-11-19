@@ -1,0 +1,30 @@
+#!/bin/sh
+# Gives ghost a login keyring without a password, once: the Secret Service
+# (gnome-keyring) then stores and hands out secrets without asking. Run as
+# ghost by gdo-desktop.service before each login; it leaves an existing
+# keyring alone, so a password set later stays.
+#
+# The desktop logs in without a password, so pam_gnome_keyring has none to
+# unlock a keyring with, and the first program that stores a secret would
+# ask for a password for a new one. A keyring without one is gnome-keyring's
+# plain-text format: unlocking it never prompts. Its secrets are stored
+# unencrypted in ghost's home, as with an empty password at that prompt;
+# whoever can read ghost's files can read them, and every program of ghost's
+# session can already read an unlocked keyring.
+set -eu
+dir="${XDG_DATA_HOME:-$HOME/.local/share}/keyrings"
+for f in "$dir"/*.keyring "$dir/default"; do
+	[ -e "$f" ] && exit 0
+done
+install -d -m 0700 "$dir"
+umask 077
+cat >"$dir/login.keyring.tmp" <<'KEYRING'
+[keyring]
+display-name=Login
+ctime=0
+mtime=0
+lock-on-idle=false
+lock-after=false
+KEYRING
+mv "$dir/login.keyring.tmp" "$dir/login.keyring"
+printf login >"$dir/default"

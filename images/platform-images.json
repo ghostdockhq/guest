@@ -1,0 +1,23 @@
+{
+  "namespace": "ghostdockhq",
+  "tag": "ubuntu-26.04",
+  "images": [
+    {
+      "name": "headless",
+      "edition": "",
+      "resources": {}
+    },
+    {
+      "name": "desktop",
+      "base": "headless",
+      "edition": "Desktop",
+      "resources": { "cpu": 2, "memoryGiB": 4 }
+    },
+    {
+      "name": "actions-runner",
+      "base": "headless",
+      "edition": "",
+      "resources": {}
+    }
+  ]
+}

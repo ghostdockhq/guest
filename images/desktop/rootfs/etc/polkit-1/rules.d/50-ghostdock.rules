@@ -1,0 +1,9 @@
+// ghost may administer the VM without a password, as sudo already allows
+// (the headless image's /etc/sudoers.d/ghost): the desktop's Restart and
+// Shut Down, and any program that asks polkit (a settings or update dialog,
+// pkexec), work without a password prompt.
+polkit.addRule(function (action, subject) {
+	if (subject.user === "ghost") {
+		return polkit.Result.YES;
+	}
+});

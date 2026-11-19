@@ -1,0 +1,10 @@
+# Selkies and its two native libraries, from their releases. The lock next to
+# this file (requirements.txt) pins every dependency with hashes; regenerate
+# it with images/desktop/lock.sh after changing a line here.
+#
+# pixelflux: the build linuxserver.io ships with Selkies 2.0.0 (thelamer is
+# linuxserver.io's lead and a Selkies maintainer); the Selkies project's own
+# pixelflux releases are newer, untried builds.
+selkies @ https://github.com/selkies-project/selkies/releases/download/2.0.0/selkies-2.0.0-py3-none-any.whl
+pixelflux @ https://github.com/thelamer/pixelflux/releases/download/ae95506/pixelflux-2.1.0-cp314-cp314-manylinux_2_28_x86_64.whl
+pcmflux @ https://github.com/selkies-project/pcmflux/releases/download/2.1.0/pcmflux-2.1.0-cp314-cp314-manylinux_2_28_x86_64.whl
