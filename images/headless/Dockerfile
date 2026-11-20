@@ -34,6 +34,12 @@ ARG IMAGE_REVISION=""
 
 COPY headless/rootfs/usr/lib/ghostdock/apt-snapshot /usr/lib/ghostdock/apt-snapshot
 
+# Storage tools of a standard Ubuntu server (ubuntu-server depends on lvm2, mdadm, xfsprogs and
+# btrfs-progs; cryptsetup comes with every server install), so a VM behaves like a standard VPS:
+# the VM's kernel has their drivers. thin-provisioning-tools is lvm2's recommend
+# for thin pools, which --no-install-recommends would skip. Not multipath-tools or open-iscsi
+# (SAN tooling a VM has no use for), not snapd.
+#
 # Docker's engine with the Compose and buildx plugins, from Docker's apt
 # repository, as Docker documents it for Ubuntu servers. Docker's repository
 # has no snapshots: the exact versions are the image's pin, so one build
@@ -62,6 +68,7 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
       file strace time bsdextrautils xxd uuid-runtime gettext-base cpio ed patch \
       iputils-tracepath mtr-tiny inetutils-telnet tcpdump tmux screen \
       kmod \
+      lvm2 thin-provisioning-tools mdadm xfsprogs btrfs-progs cryptsetup \
  && gnupg_home=$(mktemp -d) \
  && fpr=$(GNUPGHOME="$gnupg_home" gpg --batch --show-keys --with-colons /run/ghostdock-build/docker.asc 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }') \
  && rm -rf "$gnupg_home" \
