@@ -55,7 +55,8 @@ image). A new one is:
 1. `images/<name>/Dockerfile`, `FROM ${HEADLESS}` with `ARG HEADLESS=ghostdockhq/headless:ubuntu-26.04-rc`
    (the release build passes the headless image of the same build, by digest), its packages from the
    apt snapshot as the desktop's are, `/usr/lib/ghostdock/image-version` written and
-   `systemd-update-done` as its last step, and its own `org.opencontainers.image.*` labels.
+   `systemd-update-done` as its last step (validate.sh checks that the first boot had nothing to
+   update), and its own `org.opencontainers.image.*` labels.
 2. A line in [platform-images.json](platform-images.json): its `name`, its `base`, the `edition` its
    label names (empty for none) and the `resources` its validation VM needs.
 3. Optional: `images/<name>/validate.sh` with its own checks, which [validate.sh](validate.sh) sources

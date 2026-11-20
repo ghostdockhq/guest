@@ -126,6 +126,11 @@ fi
 # as the login user, whose systemctl talks to systemd over the D-Bus system bus.
 expect "$vm" "systemd is running" running 'systemctl is-system-running --wait'
 expect "$vm" "no failed units" 0 'systemctl --failed --no-legend | wc -l'
+# systemd-update-done as the image's last step (images/README.md, "A new platform image"): the
+# ConditionNeedsUpdate= units have nothing to do at the first boot, so they are skipped. An image
+# that changed /usr after it reruns them at every VM's first boot, which only makes boots slower.
+expect "$vm" "the first boot had nothing to update (systemd-update-done)" "no no" \
+	'echo $(systemctl show ldconfig.service systemd-hwdb-update.service -p ConditionResult --value)'
 # The ghostdock.login.user label: commands, SSH and the terminal land as ghost.
 expect "$vm" "commands run as the login user" "ghost 1000 /home/ghost" 'echo "$(id -un) $(id -u) $HOME"'
 expect "$vm" "commands start in the login user's home" /home/ghost 'pwd'
