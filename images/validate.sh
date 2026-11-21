@@ -169,6 +169,8 @@ expect "$vm" "the Docker engine is the image's pin" "$engine_version $engine_ver
 expect "$vm" "docker compose and buildx are there" "ok ok" \
 	'echo "$(docker compose version --short >/dev/null && echo ok) $(docker buildx version >/dev/null && echo ok)"'
 expect "$vm" "a container runs on the engine" ok 'docker run --rm --network none busybox:1.37 echo ok'
+expect "$vm" "containers run under docker-default where the kernel has AppArmor" ok \
+  'if [ -d /sys/kernel/security/apparmor ]; then p=$(docker run --rm --network none busybox:1.37 cat /proc/1/attr/current); [ "$p" = "docker-default (enforce)" ] && echo ok || echo "profile: $p"; else echo ok; fi'
 expect "$vm" "a standard server's storage tools are there" ok \
   'for c in lvm thin_check mdadm mkfs.xfs mkfs.btrfs cryptsetup; do PATH=$PATH:/usr/sbin command -v $c >/dev/null || { echo "missing $c"; exit 0; }; done; echo ok'
 # The workstation's Docker API on 127.0.0.1:2375 is gone: the

@@ -167,11 +167,9 @@ which the platform showed as a running VM that never answered (2026-11-05).
 
 **Not supported:**
 
-- **snap.** snapd needs squashfs and AppArmor, which the VM's kernel does
-  not have. Use apt, a vendor's apt repository, a Docker image or the
-  upstream binary (certbot: `apt install certbot`).
 - **The kernel and the boot** are the platform's: no loadable kernel modules
-  (`modprobe` of a built-in driver works, `modprobe dm_thin_pool` does not), no
+  (`modprobe` of a built-in driver works; the kernel builds in what an Ubuntu
+  server would load, device-mapper thin pools and squashfs included), no
   kernel packages of your own, no `do-release-upgrade` to another kernel.
   A network manager of your own fights gdo-guest for `eth0`.
 

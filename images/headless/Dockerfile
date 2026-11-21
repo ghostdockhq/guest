@@ -40,6 +40,10 @@ COPY headless/rootfs/usr/lib/ghostdock/apt-snapshot /usr/lib/ghostdock/apt-snaps
 # for thin pools, which --no-install-recommends would skip. Not multipath-tools or open-iscsi
 # (SAN tooling a VM has no use for), not snapd.
 #
+# apparmor: Ubuntu's profiles load at boot (apparmor.service) and Docker confines every container
+# with docker-default, as on an Ubuntu server; the VM's kernel has AppArmor. Unprivileged user
+# namespaces stay open: the kernel has no Ubuntu userns restriction.
+#
 # Docker's engine with the Compose and buildx plugins, from Docker's apt
 # repository, as Docker documents it for Ubuntu servers. Docker's repository
 # has no snapshots: the exact versions are the image's pin, so one build
@@ -69,6 +73,7 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
       iputils-tracepath mtr-tiny inetutils-telnet tcpdump tmux screen \
       kmod \
       lvm2 thin-provisioning-tools mdadm xfsprogs btrfs-progs cryptsetup \
+      apparmor \
  && gnupg_home=$(mktemp -d) \
  && fpr=$(GNUPGHOME="$gnupg_home" gpg --batch --show-keys --with-colons /run/ghostdock-build/docker.asc 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }') \
  && rm -rf "$gnupg_home" \
