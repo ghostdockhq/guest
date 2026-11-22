@@ -7,6 +7,7 @@ published as `ghostdockhq/actions-runner` with the same tags as the other platfo
 | | |
 |---|---|
 | Runner | GitHub's release `RUNNER_VERSION` in the [Dockerfile](Dockerfile), by checksum, in `/home/runner` |
+| apt | The runner starts once the first boot's package lists are fetched (a job's `apt-get` never meets that lock); `apt-daily.timer` and `apt-daily-upgrade.timer` are masked, as a job VM lives for one job |
 | Tools beyond headless | `build-essential git-lfs openssl zip zstd jq`, Node.js and npm (with `node-gyp`), `gh`, `python` (with pip, venv and pipx), `skopeo`, and what the runner's `installdependencies.sh` adds |
 | The job's user | `runner` (uid 1001), home `/home/runner`, passwordless sudo, in `docker`; `ghost` stays the login user |
 | Per VM | only `ACTIONS_RUNNER_INPUT_JITCONFIG` in the VM's environment, the single-use registration the runner scale set gives each job VM |

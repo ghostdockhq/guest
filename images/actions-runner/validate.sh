@@ -16,6 +16,9 @@ expect "$vm" "Node.js and node-gyp are there" ok \
 # What workflows call without installing it on a GitHub-hosted runner.
 expect "$vm" "gh, python, pip, venv, pipx and skopeo are there" ok \
 	'sudo -u runner -H sh -c "gh --version >/dev/null && python --version >/dev/null && python -m pip --version >/dev/null && python -m venv /tmp/venv-check && pipx --version >/dev/null && skopeo --version >/dev/null" && rm -rf /tmp/venv-check && echo ok'
+# No apt timer takes apt's lock in the middle of a job.
+expect "$vm" "apt's daily timers are off" "masked masked" \
+	'echo "$(systemctl is-enabled apt-daily.timer) $(systemctl is-enabled apt-daily-upgrade.timer)"'
 # A job runs as runner, as on a GitHub-hosted runner: its home, sudo without a password, Docker.
 expect "$vm" "jobs run as runner, in sudo and docker" "runner 1001 /home/runner docker sudo" \
 	'echo "$(id -un runner) $(id -u runner) $(getent passwd runner | cut -d: -f6) $(id -nG runner | tr " " "\n" | grep -xE "docker|sudo" | sort | paste -sd " ")"'

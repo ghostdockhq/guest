@@ -67,7 +67,10 @@ RUN useradd --uid 1001 --home-dir /home/runner --no-create-home --shell /bin/bas
  && chmod 0440 /etc/sudoers.d/runner
 
 COPY actions-runner/rootfs/ /
-RUN systemctl enable actions-runner.service \
+# A job VM lives for one job: apt's daily timers would only take apt's lock in the middle of one
+# (GitHub-hosted runners have them off too). The lists are fresh from the first boot's fetch.
+RUN systemctl mask apt-daily.timer apt-daily-upgrade.timer \
+ && systemctl enable actions-runner.service \
  # The build this OS came from, as in the headless image (images/validate.sh).
  && printf '%s\n' "${IMAGE_VERSION:-local}" >/usr/lib/ghostdock/image-version
 
