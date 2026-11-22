@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
+version: 1
+release: 1.0.0
+title: Google Chrome
+description: >-
+  Installs Google Chrome on this VM, from Google, once its terms are accepted. Ghostdock never
+  holds or redistributes Chrome: each VM downloads it itself, and Chrome's own package keeps it up
+  to date. A snapshot or a clone keeps it. For amd64 VMs, the only Linux build Google publishes.
+touches:
+  root: true
+  hosts: [dl.google.com]
+requirements:
+  - id: installed
+    title: Google Chrome
+    user: root
+    check: dpkg-query -W -f='${Status}' google-chrome-stable 2>/dev/null | grep -q 'ok installed'
+    apply:
+      input:
+        kind: terms
+        label: Google Chrome Terms of Service
+        url: https://www.google.com/chrome/terms/
+      run: sh "$GHOSTDOCK_MODULE_DIR/install.sh"

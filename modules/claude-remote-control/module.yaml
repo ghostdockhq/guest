@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
+version: 1
+release: 1.0.0
+title: Claude Remote Control
+description: >-
+  Runs claude remote-control in a folder as a service of the VM's login user, so you work with
+  Claude Code on the VM from claude.ai or the Claude app. It starts again after every boot, and
+  first reattaches to the session it last served. Signs in with ghostdock/claude-sign-in.
+with:
+  folder:
+    title: Folder
+    description: >-
+      Where Claude Code runs, usually a repository: an absolute path, or one starting with ~/ for
+      the login user's home. Something else creates it, such as a requirement that clones it.
+    required: true
+  permission-mode:
+    title: Permission mode
+    description: >-
+      Claude Code's --permission-mode: default, acceptEdits, plan or bypassPermissions.
+      bypassPermissions runs every tool without asking.
+    default: default
+  chrome:
+    title: Claude in Chrome
+    description: >-
+      true to start with --chrome, so Claude can use the VM's Chrome. Needs Chrome
+      (ghostdock/google-chrome) and the Claude in Chrome extension, signed in to the same account.
+    default: 'false'
+uses:
+  - module: ghostdock/claude-sign-in@1
+touches:
+  root: true
+  hosts: [claude.ai, api.anthropic.com]
+requirements:
+  - id: folder
+    title: The folder exists
+    description: Waits for the folder; whatever creates it (a clone, a script) satisfies it.
+    check: test -d "$(sh "$GHOSTDOCK_MODULE_DIR/folder.sh")"
+  - id: folder-trusted
+    title: Claude Code trusts the folder
+    description: Remote Control asks whether to trust a new folder, with no terminal to ask on.
+    dependsOn: [folder, claude-sign-in]
+    check: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" check-trust
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" trust
+  - id: bypass-prompt
+    title: Bypass permissions starts without a prompt
+    description: >-
+      Only with permission-mode bypassPermissions: a session without a terminal cannot answer
+      Claude Code's warning.
+    dependsOn: [claude-sign-in]
+    check: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" check-bypass
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" bypass
+  - id: chrome-extension
+    title: Claude in Chrome
+    description: >-
+      Only with chrome true. On the VM's desktop, open Chrome, add Claude in Chrome from
+      https://chromewebstore.google.com/detail/fcoeoabgfenejglbffodgkkbkcdhcgfn and sign it in
+      with the same claude.ai account, then click Done.
+    dependsOn: [claude-sign-in]
+    check: sh "$GHOSTDOCK_MODULE_DIR/chrome-extension.sh"
+    apply:
+      input:
+        kind: confirm
+        label: Add Claude in Chrome to the VM's Chrome and sign it in
+  - id: service
+    title: Remote Control running
+    user: root
+    dependsOn: [folder-trusted, bypass-prompt, chrome-extension]
+    interval: 60
+    check: sh "$GHOSTDOCK_MODULE_DIR/service.sh" check
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/service.sh" install
+    absent:
+      check: sh "$GHOSTDOCK_MODULE_DIR/service.sh" check-removed
+      apply:
+        run: sh "$GHOSTDOCK_MODULE_DIR/service.sh" remove

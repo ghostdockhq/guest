@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
+version: 1
+release: 1.0.0
+title: GitHub sign-in
+description: >-
+  Signs the VM's login user in to GitHub with the GitHub CLI (gh), from GitHub's own package
+  repository, and makes git use that sign-in. A github-token credential linked at create signs in
+  without asking. gh keeps a sign-in in its own config (~/.config/gh/hosts.yml); the module
+  writes no token anywhere else.
+with:
+  host:
+    title: GitHub host
+    description: github.com, or your GitHub Enterprise Server's host name.
+    default: github.com
+  scopes:
+    title: Extra scopes
+    description: >-
+      OAuth scopes to ask for beyond gh's own (repo, read:org, gist), comma-separated, such as
+      workflow.
+outputs:
+  credentials:
+    - key: token
+      type: github-token
+touches:
+  root: true
+  credentials:
+    write: [github-token]
+  hosts: [cli.github.com, github.com, api.github.com]
+requirements:
+  - id: token
+    title: GitHub token
+    description: >-
+      Optional. Link a github-token credential when you create the VM, and gh uses it (GH_TOKEN)
+      instead of asking you to sign in.
+    credential:
+      key: token
+      type: github-token
+      fields:
+        token: { env: GH_TOKEN, kind: secret }
+      produces: true
+  - id: gh
+    title: GitHub CLI
+    description: Ubuntu's own gh is too old to sign in without a terminal; this installs GitHub's.
+    user: root
+    check: sh "$GHOSTDOCK_MODULE_DIR/gh-check.sh"
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/gh-install.sh"
+  - id: signed-in
+    title: Signed in to GitHub
+    dependsOn: [gh]
+    interval: 3600
+    check: gh auth status --hostname "$GHOSTDOCK_WITH_HOST" >/dev/null 2>&1
+    apply:
+      input: { kind: link, label: Sign in to GitHub }
+      run: sh "$GHOSTDOCK_MODULE_DIR/sign-in.sh"
+    absent:
+      check: sh "$GHOSTDOCK_MODULE_DIR/signed-out.sh"
+      apply:
+        run: env -u GH_TOKEN gh auth logout --hostname "$GHOSTDOCK_WITH_HOST"
+  - id: git
+    title: git uses the GitHub sign-in
+    dependsOn: [signed-in]
+    check: >-
+      git config --global --get-all "credential.https://$GHOSTDOCK_WITH_HOST.helper" | grep -q
+      'gh auth git-credential'
+    apply:
+      run: gh auth setup-git --hostname "$GHOSTDOCK_WITH_HOST"

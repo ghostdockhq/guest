@@ -1,12 +1,13 @@
 # Ghostdock guest
 
 Everything that runs inside a [Ghostdock](https://ghostdock.ai) VM, in the open: today the OS
-images a Ghostdock Server boots, later also the guest agent, the base image and the guest kernel's
-configuration.
+images a Ghostdock Server boots and Ghostdock's requirement modules, later also the guest agent,
+the base image and the guest kernel's configuration.
 
 | Directory | What |
 |---|---|
 | [images/](images/) | The platform OS images: [headless](images/headless/), [desktop](images/desktop/) and [actions-runner](images/actions-runner/), published on Docker Hub as [`ghostdockhq/*`](https://hub.docker.com/u/ghostdockhq). How they boot, what they contain, how they are built, validated and released: [images/README.md](images/README.md). |
+| [modules/](modules/) | Ghostdock's requirement modules: [github-sign-in](modules/github-sign-in/), [claude-sign-in](modules/claude-sign-in/), [google-chrome](modules/google-chrome/) and [claude-remote-control](modules/claude-remote-control/), published on Docker Hub as `ghostdockhq/module-<name>`. What they are and how versions work: [modules/README.md](modules/README.md). |
 
 ## Build your own
 
@@ -32,6 +33,7 @@ arrives here with the next update.
 
 ## License
 
-Our files are under the [Apache License 2.0](LICENSE), which grants no rights to the Ghostdock
-name or logo. The images also contain software of others under their own licenses:
-[NOTICE](NOTICE). Security reports: [SECURITY.md](SECURITY.md).
+Our files, the images' and the modules', are under the [Apache License 2.0](LICENSE), which grants
+no rights to the Ghostdock name or logo; each published module carries it as `LICENSE`. The images
+also contain software of others under their own licenses, and the modules download software of
+others when they run, under its own terms: [NOTICE](NOTICE). Security reports: [SECURITY.md](SECURITY.md).

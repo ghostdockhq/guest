@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
+version: 1
+release: 1.0.0
+title: Claude sign-in
+description: >-
+  Installs Claude Code for the VM's login user and signs it in with a claude.ai account. Remote
+  Control and Claude in Chrome need this login: a token from claude setup-token only makes model
+  requests. Claude Code keeps the login in ~/.claude/.credentials.json on the VM's disk, so a
+  snapshot or a clone carries it; it is not a Ghostdock credential. A login has an end date that
+  use does not extend: the module asks for a new sign-in three days before it.
+touches:
+  root: false
+  hosts: [claude.ai, api.anthropic.com, storage.googleapis.com]
+requirements:
+  - id: installed
+    title: Claude Code
+    check: test -x "$HOME/.local/bin/claude"
+    apply:
+      run: curl -fsSL https://claude.ai/install.sh | bash
+  - id: signed-in
+    title: Signed in to Claude
+    dependsOn: [installed]
+    interval: 3600
+    check: sh "$GHOSTDOCK_MODULE_DIR/check-login.sh"
+    apply:
+      input: { kind: link, label: Sign in to Claude, paste: true }
+      run: sh "$GHOSTDOCK_MODULE_DIR/sign-in.sh"
+    absent:
+      check: '! "$HOME/.local/bin/claude" auth status >/dev/null 2>&1'
+      apply:
+        run: '"$HOME/.local/bin/claude" auth logout'
