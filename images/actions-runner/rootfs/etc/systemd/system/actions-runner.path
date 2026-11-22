@@ -1,0 +1,15 @@
+[Unit]
+Description=GitHub Actions runner: start it when the VM env arrives
+Documentation=https://docs.ghostdock.ai
+# The runner's start at boot reads the VM env once. gdo-guest writes /run/ghostdock/env at every
+# config push, and the first push can come after that start (gdo-guest restarted, or the host
+# answered after gdo-guest's minute without one): the registration is then there, but the runner
+# was already skipped and the job VM idled for good. Each write starts the runner again; its
+# ExecCondition decides once more, and a runner that is already running is left alone.
+
+[Path]
+PathChanged=/run/ghostdock/env
+Unit=actions-runner.service
+
+[Install]
+WantedBy=paths.target

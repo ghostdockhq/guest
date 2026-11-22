@@ -17,6 +17,11 @@ after gdo-guest has applied the host's first config (`/run/ghostdock/env` is the
 
 - without `ACTIONS_RUNNER_INPUT_JITCONFIG`, is skipped (`ExecCondition`; `Result=exec-condition`, not failed) and
   the VM stays up as a plain Server;
+- [`actions-runner.path`](rootfs/etc/systemd/system/actions-runner.path) starts it again whenever gdo-guest writes
+  `/run/ghostdock/env` (every config push), so a registration that arrives after the boot's start (gdo-guest
+  restarted, or the host's first config came late) still runs the job instead of leaving the VM idle;
+- runs at most once per boot: its first start leaves `/run/actions-runner.started`, and a later start (a config
+  push between the job's end and the poweroff) is skipped, so the VM itself keeps it to one job;
 - with it, runs `run.sh`, which takes the registration, runs one job and exits. Then
   [`actions-runner-done`](rootfs/usr/lib/ghostdock/actions-runner-done) powers the VM off, and an ephemeral VM is deleted.
 

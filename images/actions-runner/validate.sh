@@ -28,6 +28,8 @@ expect "$vm" "runner reaches Docker without sudo" ok \
 	'sudo -u runner docker run --rm --network none busybox:1.37 echo ok'
 # Without a registration the unit is skipped (ExecCondition), not failed, and nothing powers off.
 expect "$vm" "the runner unit is enabled" enabled 'systemctl is-enabled actions-runner.service'
+expect "$vm" "the runner starts again when the VM env is written" "enabled active" \
+	'echo "$(systemctl is-enabled actions-runner.path) $(systemctl is-active actions-runner.path)"'
 expect "$vm" "without a registration the runner is skipped" exec-condition \
 	'systemctl show -p Result --value actions-runner.service'
 expect "$vm" "a skipped runner does not power the VM off" "0 running" \
@@ -35,3 +37,7 @@ expect "$vm" "a skipped runner does not power the VM off" "0 running" \
 # Why jobs run on a Server and not in a container: the VM's own kernel and root.
 expect "$vm" "a job can add swap" /swapfile \
 	'sudo fallocate -l 256M /swapfile && sudo chmod 600 /swapfile && sudo mkswap -q /swapfile && sudo swapon /swapfile && swapon --show=NAME --noheadings; sudo swapoff /swapfile; sudo rm -f /swapfile'
+# One runner per boot: once a runner started (the marker), a registration written later is
+# skipped, not run a second time. Last, as it writes the VM env.
+expect "$vm" "a registration after the runner started is skipped" "exec-condition inactive" \
+	'sudo touch /run/actions-runner.started && printf "ACTIONS_RUNNER_INPUT_JITCONFIG=\"validate\"\n" | sudo tee /run/ghostdock/.validate-env >/dev/null && sudo mv /run/ghostdock/.validate-env /run/ghostdock/env && sleep 2 && echo "$(systemctl show -p Result --value actions-runner.service) $(systemctl is-active actions-runner.service)"'

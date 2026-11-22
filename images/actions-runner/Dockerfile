@@ -70,7 +70,7 @@ COPY actions-runner/rootfs/ /
 # A job VM lives for one job: apt's daily timers would only take apt's lock in the middle of one
 # (GitHub-hosted runners have them off too). The lists are fresh from the first boot's fetch.
 RUN systemctl mask apt-daily.timer apt-daily-upgrade.timer \
- && systemctl enable actions-runner.service \
+ && systemctl enable actions-runner.service actions-runner.path \
  # The build this OS came from, as in the headless image (images/validate.sh).
  && printf '%s\n' "${IMAGE_VERSION:-local}" >/usr/lib/ghostdock/image-version
 

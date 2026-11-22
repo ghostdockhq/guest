@@ -15,7 +15,14 @@ WorkingDirectory=/home/runner
 EnvironmentFile=-/run/ghostdock/env
 Environment=HOME=/home/runner
 # A VM without a registration (a plain Server of this image) skips the runner and stays up.
-ExecCondition=/bin/sh -c 'test -n "$${ACTIONS_RUNNER_INPUT_JITCONFIG:-}"'
+# actions-runner.path starts it again whenever the VM env is written, so a registration that
+# arrives after the boot's start still runs.
+# One runner per boot: the first start leaves /run/actions-runner.started, and every later
+# start is skipped. A config push between the job's end and the poweroff would otherwise queue
+# run.sh again with the used registration; the VM, not GitHub's single-use registration,
+# keeps it to one job.
+ExecCondition=/bin/sh -c 'test -n "$${ACTIONS_RUNNER_INPUT_JITCONFIG:-}" && test ! -e /run/actions-runner.started'
+ExecStartPre=+/bin/touch /run/actions-runner.started
 # A job's first `apt-get` must not meet the lock of the first boot's list fetch (gdo-apt-lists,
 # headless image), as on a GitHub-hosted runner: wait for it, at most two minutes.
 ExecStartPre=/bin/sh -c 'for i in $$(seq 120); do systemctl is-active --quiet gdo-apt-lists.service || exit 0; sleep 1; done'
