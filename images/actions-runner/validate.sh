@@ -13,9 +13,10 @@ expect "$vm" "the runner is the Dockerfile's release" "$runner_version" \
 # Node.js and npm's node-gyp, as on a GitHub-hosted runner: native modules build in a job.
 expect "$vm" "Node.js and node-gyp are there" ok \
 	'sudo -u runner -H sh -c "node --version >/dev/null && npm --version >/dev/null && command -v node-gyp >/dev/null || ls /usr/share/nodejs/node-gyp >/dev/null" && echo ok'
-# What workflows call without installing it on a GitHub-hosted runner.
+# What workflows call without installing it on a GitHub-hosted runner. The venv is removed as runner,
+# who made it: /tmp is sticky, so the calling user may not remove it (2026-11-22).
 expect "$vm" "gh, python, pip, venv, pipx and skopeo are there" ok \
-	'sudo -u runner -H sh -c "gh --version >/dev/null && python --version >/dev/null && python -m pip --version >/dev/null && python -m venv /tmp/venv-check && pipx --version >/dev/null && skopeo --version >/dev/null" && rm -rf /tmp/venv-check && echo ok'
+	'sudo -u runner -H sh -c "gh --version >/dev/null && python --version >/dev/null && python -m pip --version >/dev/null && python -m venv /tmp/venv-check && rm -rf /tmp/venv-check && pipx --version >/dev/null && skopeo --version >/dev/null" && echo ok'
 # No apt timer takes apt's lock in the middle of a job.
 expect "$vm" "apt's daily timers are off" "masked masked" \
 	'echo "$(systemctl is-enabled apt-daily.timer) $(systemctl is-enabled apt-daily-upgrade.timer)"'
