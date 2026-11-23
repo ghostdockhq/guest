@@ -13,6 +13,8 @@ Wants=gdo-desktop.service
 After=gdo-xvfb.service gdo-desktop-guard.service user@1000.service
 
 [Service]
+# Ghostdock's own service: its CPU is not the workload's work (https://docs.ghostdock.ai/vms/sleep).
+Slice=ghostdock.slice
 User=ghost
 WorkingDirectory=/home/ghost
 EnvironmentFile=/etc/ghostdock/desktop.env

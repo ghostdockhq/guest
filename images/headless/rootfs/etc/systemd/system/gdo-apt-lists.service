@@ -11,6 +11,8 @@ Description=Fetch apt's package lists on a new VM
 After=network.target
 
 [Service]
+# Ghostdock's own service: its CPU is not the workload's work (https://docs.ghostdock.ai/vms/sleep).
+Slice=ghostdock.slice
 Type=exec
 ExecCondition=/bin/sh -c '! ls /var/lib/apt/lists/*_Packages* >/dev/null 2>&1'
 ExecStart=-/usr/bin/apt-get update -q -o Acquire::Retries=3

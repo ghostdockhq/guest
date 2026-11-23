@@ -6,6 +6,8 @@ Requires=gdo-desktop-prepare.service
 After=gdo-desktop-prepare.service
 
 [Service]
+# Ghostdock's own service: its CPU is not the workload's work (https://docs.ghostdock.ai/vms/sleep).
+Slice=ghostdock.slice
 User=ghost
 EnvironmentFile=/etc/ghostdock/desktop.env
 ExecStart=/usr/bin/Xvfb :1 -auth /run/ghostdock-desktop/Xauthority \

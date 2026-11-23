@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
 version: 1
-release: 1.0.0
+release: 1.1.0
 title: Claude Remote Control
 description: >-
   Runs claude remote-control in a folder as a service of the VM's login user, so you work with
@@ -51,6 +51,16 @@ requirements:
     check: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" check-bypass
     apply:
       run: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" bypass
+  - id: use-hooks
+    title: Claude Code says when it is used
+    description: >-
+      Hooks that report a prompt, and every tool Claude runs for it, as use of the VM for 15
+      minutes (ghostdock-step busy), so the VM does not go to sleep under a session that works,
+      and sleeps after its idle time once the session waits.
+    dependsOn: [claude-sign-in]
+    check: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" check-hooks
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" hooks
   - id: chrome-extension
     title: Claude in Chrome
     description: >-
@@ -66,7 +76,7 @@ requirements:
   - id: service
     title: Remote Control running
     user: root
-    dependsOn: [folder-trusted, bypass-prompt, chrome-extension]
+    dependsOn: [folder-trusted, bypass-prompt, use-hooks, chrome-extension]
     interval: 60
     check: sh "$GHOSTDOCK_MODULE_DIR/service.sh" check
     apply:

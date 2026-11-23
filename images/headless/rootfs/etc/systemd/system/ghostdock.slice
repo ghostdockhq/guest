@@ -1,0 +1,9 @@
+# Ghostdock's own services on the VM (the desktop stream and its display, the
+# desktop's activity reporter and guard, the package lists' first fetch):
+# gdo-guest reports this slice's CPU with its own, and the host leaves it out
+# of the workload's work, which keeps the VM awake (https://docs.ghostdock.ai/vms/sleep). The
+# person's programs never run here: the desktop session (gdo-desktop.service)
+# is in system.slice like any service of theirs.
+[Unit]
+Description=Ghostdock's own services
+Before=slices.target

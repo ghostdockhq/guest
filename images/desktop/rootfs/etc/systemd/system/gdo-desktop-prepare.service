@@ -4,6 +4,8 @@ After=local-fs.target
 Before=gdo-xvfb.service
 
 [Service]
+# Ghostdock's own service: its CPU is not the workload's work (https://docs.ghostdock.ai/vms/sleep).
+Slice=ghostdock.slice
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/lib/ghostdock/desktop-prepare
