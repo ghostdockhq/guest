@@ -17,8 +17,9 @@ WorkingDirectory=/home/runner
 EnvironmentFile=-/run/ghostdock/env
 Environment=HOME=/home/runner
 # Before a job's first step (and its containers), Docker answers: the runner no longer starts after
-# dockerd, so a job assigned within a second or two could otherwise meet no engine.
-Environment=ACTIONS_RUNNER_HOOK_JOB_STARTED=/usr/lib/ghostdock/actions-runner-wait-docker
+# dockerd, so a job assigned within a second or two could otherwise meet no engine. The runner
+# runs a hook only by its extension (.sh, .ps1 or .js): without one it fails every job (2026-11-24).
+Environment=ACTIONS_RUNNER_HOOK_JOB_STARTED=/usr/lib/ghostdock/actions-runner-wait-docker.sh
 # A VM without a registration (a plain Server of this image) skips the runner and stays up.
 # actions-runner.path starts it again whenever the VM env is written, so a registration that
 # arrives after the boot's start still runs.

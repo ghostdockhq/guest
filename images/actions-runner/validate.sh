@@ -20,9 +20,12 @@ expect "$vm" "gh, python, pip, venv, pipx and skopeo are there" ok \
 # The lists ship in the image: the first boot's fetch skips itself, so nothing waits for it.
 expect "$vm" "apt's lists ship in the image, no fetch at boot" "yes exec-condition" \
 	'echo "$(ls /var/lib/apt/lists/*_Packages* >/dev/null 2>&1 && echo yes || echo no) $(systemctl show -p Result --value gdo-apt-lists.service)"'
-# The runner does not start after dockerd; its job-started hook waits for Docker instead.
+# The runner does not start after dockerd; its job-started hook waits for Docker instead. The
+# runner takes a hook only by its extension (.sh, .ps1, .js), else it fails every job.
+expect "$vm" "the runner's job hook is a script it runs (.sh)" ok \
+	'h=$(systemctl show -p Environment --value actions-runner.service | tr " " "\n" | sed -n "s/^ACTIONS_RUNNER_HOOK_JOB_STARTED=//p"); case "$h" in *.sh) test -x "$h" && echo ok;; esac'
 expect "$vm" "the runner waits for Docker in its job hook, not at start" "no ok" \
-	'echo "$(systemctl show -p After --value actions-runner.service | tr " " "\n" | grep -qx docker.service && echo yes || echo no) $(sudo -u runner /usr/lib/ghostdock/actions-runner-wait-docker && echo ok)"'
+	'echo "$(systemctl show -p After --value actions-runner.service | tr " " "\n" | grep -qx docker.service && echo yes || echo no) $(sudo -u runner /usr/lib/ghostdock/actions-runner-wait-docker.sh && echo ok)"'
 # No apt timer takes apt's lock in the middle of a job.
 expect "$vm" "apt's daily timers are off" "masked masked" \
 	'echo "$(systemctl is-enabled apt-daily.timer) $(systemctl is-enabled apt-daily-upgrade.timer)"'

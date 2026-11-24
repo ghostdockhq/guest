@@ -8,7 +8,7 @@ published as `ghostdockhq/actions-runner` with the same tags as the other platfo
 |---|---|
 | Runner | GitHub's release `RUNNER_VERSION` in the [Dockerfile](Dockerfile), by checksum, in `/home/runner` |
 | apt | The package lists ship in the image, fetched from the live archive at build, so the first boot fetches none and a job's `apt-get install` works at once (lists as old as the build, as on a GitHub-hosted runner; `apt-get update` refreshes them); `apt-daily.timer` and `apt-daily-upgrade.timer` are masked, as a job VM lives for one job |
-| Docker | The runner starts beside dockerd, not after it; its job-started hook ([`actions-runner-wait-docker`](rootfs/usr/lib/ghostdock/actions-runner-wait-docker), shown as the job's "Set up runner" step) waits until Docker answers, at most a minute, before the first step |
+| Docker | The runner starts beside dockerd, not after it; its job-started hook ([`actions-runner-wait-docker.sh`](rootfs/usr/lib/ghostdock/actions-runner-wait-docker.sh), shown as the job's "Set up runner" step) waits until Docker answers, at most a minute, before the first step |
 | Tools beyond headless | `build-essential git-lfs openssl zip zstd jq`, Node.js and npm (with `node-gyp`), `gh`, `python` (with pip, venv and pipx), `skopeo`, and what the runner's `installdependencies.sh` adds |
 | The job's user | `runner` (uid 1001), home `/home/runner`, passwordless sudo, in `docker`; `ghost` stays the login user |
 | Per VM | only `ACTIONS_RUNNER_INPUT_JITCONFIG` in the VM's environment, the single-use registration the runner scale set gives each job VM |
