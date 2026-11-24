@@ -37,7 +37,7 @@ expect "$vm" "sound is PipeWire, playing to Selkies' sink" "PipeWire output" \
 expect "$vm" "ghost's home has the desktop's per-user files" "ghost ghost" \
 	'stat -c %U ~/.config/novadock/config.ini ~/.config/gtk-3.0/gtk.css | tr "\n" " "'
 # The port Selkies listens on, and the URL titled Desktop the app made
-# from the image's ghostdock.urls.desktop labels: they must agree, or
+# from the image's ghostdock.url.desktop labels: they must agree, or
 # the Desktop button opens nothing.
 port=$(run "$vm" '. /etc/ghostdock/selkies.env && echo "$SELKIES_PORT"') || fail "no /etc/ghostdock/selkies.env"
 urls=$(ghostdock vm url list "$vm" --json)

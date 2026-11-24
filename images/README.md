@@ -276,7 +276,7 @@ desktop, streamed to the browser by [Selkies](https://github.com/selkies-project
 it is an OS image: `ghostdock vm up desktop`
 makes a Server that boots it as its own system (it inherits `ghostdock.os=true`
 and the login user), and the app makes the Desktop URL from its
-`ghostdock.urls.desktop` labels. Everything runs as units of the OS's own
+`ghostdock.url.desktop` labels. Everything runs as units of the OS's own
 systemd: the display and the stream as system services, the desktop itself
 as a login session of `ghost` (see [The login session](#the-login-session)).
 `/dev/shm` is the OS's own tmpfs (half the VM's memory, used only when
@@ -292,8 +292,8 @@ through. The units, in this order:
 | `gdo-selkies` | the stream on port 14080 (`DESKTOP_PORT`, the VM URL titled Desktop): web client, websocket (`/api/websockets`), health (`/api/health`) |
 
 - **Access.** Selkies' own login is off. The labels
-  `ghostdock.urls.desktop.port=14080` and
-  `ghostdock.urls.desktop.title=Desktop` make the app put the port behind
+  `ghostdock.url.desktop.port=14080` and
+  `ghostdock.url.desktop.title=Desktop` make the app put the port behind
   a private VM URL (HTTP URLs are private by default), which signs the
   user in; the card shows a button for every titled URL, so this one is
   **Desktop**. Selkies' same-origin check on the websocket stays on. Over the

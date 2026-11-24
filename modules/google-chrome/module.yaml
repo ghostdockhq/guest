@@ -1,6 +1,6 @@
-# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
-version: 1
-release: 1.0.0
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
+version: 2
+release: 2.0.0
 title: Google Chrome
 description: >-
   Installs Google Chrome on this VM, from Google, once its terms are accepted. Ghostdock never

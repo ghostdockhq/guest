@@ -87,11 +87,12 @@ RUN /usr/lib/systemd/systemd-update-done
 
 # ghostdock.os, ghostdock.login.user: from the headless image. No ghostdock.edition: the VM card
 # says "Server", as for headless. ghostdock.env.*: the one value a VM of this image is given, the
-# runner's single-use registration, which the runner scale set sets for each job. Not required,
-# and said so: a declared secret is required by default. A Server of this image without it is a
-# plain Server, and the image's validation creates one.
-LABEL ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.kind="secret" \
-      ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.required="false" \
+# runner's single-use registration, which the runner scale set sets for each job. Optional, and
+# said so: a declared value is asked unless it is optional. A Server of this image without it
+# is a plain Server, and the image's validation creates one.
+LABEL ghostdock.labels.format="2" \
+      ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.kind="secret" \
+      ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.optional="true" \
       ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.title="Single-use runner registration" \
       ghostdock.env.ACTIONS_RUNNER_INPUT_JITCONFIG.description="Set by the runner scale set for each job; not meant to be entered by hand."
 LABEL org.opencontainers.image.title="Ghostdock Server, Actions runner (based on Ubuntu 26.04)" \

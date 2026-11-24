@@ -1,6 +1,6 @@
-# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
-version: 1
-release: 1.1.0
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
+version: 2
+release: 2.0.0
 title: Claude sign-in
 description: >-
   Installs Claude Code for the VM's login user and signs it in with a claude.ai account. Remote

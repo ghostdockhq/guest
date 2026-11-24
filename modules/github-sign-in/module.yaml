@@ -1,6 +1,6 @@
-# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
-version: 1
-release: 1.1.0
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
+version: 2
+release: 2.0.0
 title: GitHub sign-in
 description: >-
   Signs the VM's login user in to GitHub with the GitHub CLI (gh), from GitHub's own package
@@ -19,14 +19,11 @@ with:
     description: >-
       OAuth scopes to ask for beyond gh's own (repo, read:org, gist), comma-separated, such as
       workflow.
-outputs:
-  credentials:
-    - key: token
-      type: github-token
+    optional: true
 touches:
   root: true
   credentials:
-    write: [github-token]
+    read: [github-token]
   hosts: [cli.github.com, github.com, api.github.com]
 requirements:
   - id: token
@@ -35,11 +32,10 @@ requirements:
       Optional. Link a github-token credential when you create the VM, and gh uses it (GH_TOKEN)
       instead of asking you to sign in.
     credential:
-      key: token
       type: github-token
       fields:
-        token: { env: GH_TOKEN, kind: secret }
-      produces: true
+        token: GH_TOKEN
+      optional: true
   - id: gh
     title: GitHub CLI
     description: Ubuntu's own gh is too old to sign in without a terminal; this installs GitHub's.

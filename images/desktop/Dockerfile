@@ -8,7 +8,7 @@
 # the display and the stream as system services, the desktop itself as a
 # logind session of ghost, logged in as a display manager does (images/README.md,
 # Desktop). The desktop listens on DESKTOP_PORT; the
-# ghostdock.urls.desktop labels tell the app, which puts it behind a private
+# ghostdock.url.desktop labels tell the app, which puts it behind a private
 # VM URL titled Desktop (Selkies has no login of its own here).
 #
 # Published as ghostdockhq/desktop. Build context: images. HEADLESS
@@ -211,8 +211,9 @@ RUN /usr/lib/systemd/systemd-update-done
 # ghostdock.setting.workKeepsAwakeMinutes: a desktop's work alone (a video
 # for nobody) keeps it awake four hours after the last input; a server's
 # default is unlimited (https://docs.ghostdock.ai/vms/sleep). The only difference between the two.
-LABEL ghostdock.urls.desktop.port="${DESKTOP_PORT}" \
-      ghostdock.urls.desktop.title="Desktop" \
+LABEL ghostdock.labels.format="2" \
+      ghostdock.url.desktop.port="${DESKTOP_PORT}" \
+      ghostdock.url.desktop.title="Desktop" \
       ghostdock.setting.workKeepsAwakeMinutes="240" \
       ghostdock.edition="Desktop" \
       org.opencontainers.image.title="Ghostdock Server, Desktop (based on Ubuntu 26.04)" \

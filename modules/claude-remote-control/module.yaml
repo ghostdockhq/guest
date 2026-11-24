@@ -1,6 +1,6 @@
-# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
-version: 1
-release: 1.1.0
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
+version: 2
+release: 2.0.0
 title: Claude Remote Control
 description: >-
   Runs claude remote-control in a folder as a service of the VM's login user, so you work with
@@ -12,7 +12,6 @@ with:
     description: >-
       Where Claude Code runs, usually a repository: an absolute path, or one starting with ~/ for
       the login user's home. Something else creates it, such as a requirement that clones it.
-    required: true
   permission-mode:
     title: Permission mode
     description: >-
@@ -26,7 +25,7 @@ with:
       (ghostdock/google-chrome) and the Claude in Chrome extension, signed in to the same account.
     default: 'false'
 uses:
-  - module: ghostdock/claude-sign-in@1
+  - module: ghostdock/claude-sign-in@2
 touches:
   root: true
   hosts: [claude.ai, api.anthropic.com]
