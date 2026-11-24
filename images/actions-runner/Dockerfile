@@ -74,6 +74,14 @@ RUN systemctl mask apt-daily.timer apt-daily-upgrade.timer \
  # The build this OS came from, as in the headless image (images/validate.sh).
  && printf '%s\n' "${IMAGE_VERSION:-local}" >/usr/lib/ghostdock/image-version
 
+# apt's package lists from the live archive, fetched at build: a job VM's first boot then skips
+# gdo-apt-lists (its ExecCondition: lists are there), and the runner does not wait for that fetch
+# (4-9 s, on the way to every job). A job's `apt-get install` works at once, with lists as old as
+# the build, as on a GitHub-hosted runner; `apt-get update` refreshes them. Plain HTTP archive: no
+# CA store needed. A layer of its own and late, as it changes with every build.
+RUN apt-get update -q -o Acquire::Retries=3 \
+ && rm -f /var/cache/apt/*.bin
+
 # The last step that changes files, as in the headless image: this image changed /usr.
 RUN /usr/lib/systemd/systemd-update-done
 

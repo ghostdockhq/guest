@@ -17,6 +17,12 @@ expect "$vm" "Node.js and node-gyp are there" ok \
 # who made it: /tmp is sticky, so the calling user may not remove it (2026-11-22).
 expect "$vm" "gh, python, pip, venv, pipx and skopeo are there" ok \
 	'sudo -u runner -H sh -c "gh --version >/dev/null && python --version >/dev/null && python -m pip --version >/dev/null && python -m venv /tmp/venv-check && rm -rf /tmp/venv-check && pipx --version >/dev/null && skopeo --version >/dev/null" && echo ok'
+# The lists ship in the image: the first boot's fetch skips itself, so nothing waits for it.
+expect "$vm" "apt's lists ship in the image, no fetch at boot" "yes exec-condition" \
+	'echo "$(ls /var/lib/apt/lists/*_Packages* >/dev/null 2>&1 && echo yes || echo no) $(systemctl show -p Result --value gdo-apt-lists.service)"'
+# The runner does not start after dockerd; its job-started hook waits for Docker instead.
+expect "$vm" "the runner waits for Docker in its job hook, not at start" "no ok" \
+	'echo "$(systemctl show -p After --value actions-runner.service | tr " " "\n" | grep -qx docker.service && echo yes || echo no) $(sudo -u runner /usr/lib/ghostdock/actions-runner-wait-docker && echo ok)"'
 # No apt timer takes apt's lock in the middle of a job.
 expect "$vm" "apt's daily timers are off" "masked masked" \
 	'echo "$(systemctl is-enabled apt-daily.timer) $(systemctl is-enabled apt-daily-upgrade.timer)"'

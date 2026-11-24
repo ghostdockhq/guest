@@ -2,7 +2,9 @@
 Description=GitHub Actions runner: one job, then the VM powers off
 Documentation=https://docs.ghostdock.ai
 # gdo-guest is ready once the host's first config is applied: the VM env is in /run/ghostdock.
-After=gdo-guest.service docker.service network-online.target
+# Not after docker.service: dockerd starts beside the runner (1-3 s) instead of before it, and
+# the job-started hook below waits for it before a job's first step.
+After=gdo-guest.service network-online.target
 Wants=docker.service network-online.target
 
 [Service]
@@ -14,6 +16,9 @@ WorkingDirectory=/home/runner
 # ACTIONS_RUNNER_INPUT_JITCONFIG, which run.sh reads as its --jitconfig.
 EnvironmentFile=-/run/ghostdock/env
 Environment=HOME=/home/runner
+# Before a job's first step (and its containers), Docker answers: the runner no longer starts after
+# dockerd, so a job assigned within a second or two could otherwise meet no engine.
+Environment=ACTIONS_RUNNER_HOOK_JOB_STARTED=/usr/lib/ghostdock/actions-runner-wait-docker
 # A VM without a registration (a plain Server of this image) skips the runner and stays up.
 # actions-runner.path starts it again whenever the VM env is written, so a registration that
 # arrives after the boot's start still runs.
@@ -24,7 +29,9 @@ Environment=HOME=/home/runner
 ExecCondition=/bin/sh -c 'test -n "$${ACTIONS_RUNNER_INPUT_JITCONFIG:-}" && test ! -e /run/actions-runner.started'
 ExecStartPre=+/bin/touch /run/actions-runner.started
 # A job's first `apt-get` must not meet the lock of the first boot's list fetch (gdo-apt-lists,
-# headless image), as on a GitHub-hosted runner: wait for it, at most two minutes.
+# headless image), as on a GitHub-hosted runner: wait for it, at most two minutes. The image ships
+# the lists, so the fetch skips itself and this ends at once; it stays for an image built on this
+# one that removes them.
 ExecStartPre=/bin/sh -c 'for i in $$(seq 120); do systemctl is-active --quiet gdo-apt-lists.service || exit 0; sleep 1; done'
 ExecStart=/home/runner/run.sh
 # One job: when the runner ends, the VM powers off, and an ephemeral VM is then deleted.
