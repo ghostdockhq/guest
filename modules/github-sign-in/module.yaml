@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
 version: 1
-release: 1.0.0
+release: 1.1.0
 title: GitHub sign-in
 description: >-
   Signs the VM's login user in to GitHub with the GitHub CLI (gh), from GitHub's own package
@@ -10,7 +10,9 @@ description: >-
 with:
   host:
     title: GitHub host
-    description: github.com, or your GitHub Enterprise Server's host name.
+    description: >-
+      github.com, or your GitHub Enterprise Server's host name. The sign-in link a person opens is
+      on github.com: for a GitHub Enterprise Server, a copy of this module names its host there.
     default: github.com
   scopes:
     title: Extra scopes
@@ -51,7 +53,7 @@ requirements:
     interval: 3600
     check: gh auth status --hostname "$GHOSTDOCK_WITH_HOST" >/dev/null 2>&1
     apply:
-      input: { kind: link, label: Sign in to GitHub }
+      input: { kind: link, label: Sign in to GitHub, host: github.com }
       run: sh "$GHOSTDOCK_MODULE_DIR/sign-in.sh"
     absent:
       check: sh "$GHOSTDOCK_MODULE_DIR/signed-out.sh"

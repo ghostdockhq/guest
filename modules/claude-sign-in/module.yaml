@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v1.json
 version: 1
-release: 1.0.0
+release: 1.1.0
 title: Claude sign-in
 description: >-
   Installs Claude Code for the VM's login user and signs it in with a claude.ai account. Remote
@@ -23,7 +23,7 @@ requirements:
     interval: 3600
     check: sh "$GHOSTDOCK_MODULE_DIR/check-login.sh"
     apply:
-      input: { kind: link, label: Sign in to Claude, paste: true }
+      input: { kind: link, label: Sign in to Claude, host: claude.ai, paste: true }
       run: sh "$GHOSTDOCK_MODULE_DIR/sign-in.sh"
     absent:
       check: '! "$HOME/.local/bin/claude" auth status >/dev/null 2>&1'
