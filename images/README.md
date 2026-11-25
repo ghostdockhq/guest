@@ -10,7 +10,7 @@ never run as containers.
 | Directory | Image | |
 |---|---|---|
 | [headless/](headless/) | `ghostdockhq/headless:ubuntu-26.04` | Server · Headless (based on Ubuntu 26.04), the OS of the system and template `headless` |
-| [desktop/](desktop/) | `ghostdockhq/desktop:ubuntu-26.04` | Server · Desktop: the headless image plus an XFCE desktop in the browser, the OS of `desktop` |
+| [desktop/](desktop/) | `ghostdockhq/desktop:ubuntu-26.04` | Server · Desktop: the headless image plus the requirement module `ghostdock/desktop` (an XFCE desktop in the browser), the OS of `desktop` |
 | [actions-runner/](actions-runner/) | `ghostdockhq/actions-runner:ubuntu-26.04` | The headless image plus GitHub's runner: one GitHub Actions job per VM, ready at boot |
 
 Each image has its own Docker Hub repository with the same tags: `ubuntu-26.04`
@@ -83,9 +83,9 @@ Docker's engine, CLI and plugins are Docker's packages (Apache-2.0,
 `/usr/share/doc/docker-ce/copyright` and the others' own).
 In the desktop, Selkies and its Python dependencies keep theirs in `/opt/selkies`
 (each package's `dist-info`), and NovaDock (GPL-3.0) in `/usr/share/doc/novadock`;
-its source is the pinned upstream commit plus `desktop/novadock.patch`. The menu
+its source is the pinned upstream commit plus the module's `novadock.patch`. The menu
 bar's appmenu plugin library is Ubuntu's release of vala-panel-appmenu (LGPL-3.0,
-`/usr/share/doc/xfce4-appmenu-plugin/copyright`) plus `desktop/appmenu.patch`. The `org.opencontainers.image.licenses` label
+`/usr/share/doc/xfce4-appmenu-plugin/copyright`) plus the module's `appmenu.patch`. The `org.opencontainers.image.licenses` label
 says this as `Apache-2.0 AND LicenseRef-Bundled-Packages`.
 
 ## How it runs
@@ -281,7 +281,26 @@ systemd: the display and the stream as system services, the desktop itself
 as a login session of `ghost` (see [The login session](#the-login-session)).
 `/dev/shm` is the OS's own tmpfs (half the VM's memory, used only when
 something is in it), which the X server and the stream share frames
-through. The units, in this order:
+through.
+
+**The desktop is a requirement module.** Everything below (the units, the
+scripts, the look, Selkies' pinned requirements, the patches) lives in
+`requirement-modules/ghostdock/desktop` (`modules/desktop` in the public copy) and is installed by its
+`install.sh`. The image build runs that script (`install.sh image`, with the
+archive pinned to the build's day); a person or an agent adds the same module
+to a running headless Server (`ghostdock/desktop`, the VM page's Add
+requirement or `vm_requirement_add`), where `install.sh install` installs it
+from the live archive and starts it, and the module makes the Desktop URL.
+`images/desktop/Dockerfile` keeps only what an image has: its labels, its
+version file and the snapshot. One definition, two ways to get it: a change
+to the desktop is a change to the module (and a new module release), which
+the next image build picks up. The module's check is its release
+(`/usr/lib/ghostdock/desktop-module`), so adding it to a desktop Server of
+that release changes nothing, and adding it to an older one installs the
+current desktop over it. A Server whose guest reports a desktop shows
+"Server · Desktop", however it got one.
+
+The units, in this order:
 
 | Unit | Does |
 |---|---|
@@ -312,8 +331,9 @@ through. The units, in this order:
   does not run here), pinned above Ubuntu's package. It is the current
   release on the build's day.
 - **Selkies** lives in `/opt/selkies`, a virtual environment installed from
-  `desktop/requirements.txt`: every package pinned with hashes, wheels only.
-  Change `desktop/requirements.in`, then run `desktop/lock.sh` (needs uv).
+  the module's `requirements.txt`: every package pinned with hashes, wheels only.
+  Change its `requirements.in`, then run its `lock.sh` (needs uv), and give the
+  module a new release (`bun run modules:lock`).
 - **nftables** is installed for `gdo-desktop-guard`'s `nft` only, which adds
   and replaces its own table `inet gdo_desktop_guard`. `nftables.service` is
   masked: it loads `/etc/nftables.conf`, whose `flush ruleset` would wipe
@@ -418,7 +438,9 @@ Found while building it (2026-11-06):
   scopes of their own under `app.slice`: XFCE does not start apps through
   systemd as GNOME does.
 - **Desktop Servers created before this build keep the old setup**: the OS
-  is the user's, and the image is only its starting point.
+  is the user's, and the image is only its starting point. Adding the module
+  `ghostdock/desktop` to one brings it to the current desktop (a running
+  session keeps going until the next start).
 
 ### Look
 
@@ -427,14 +449,16 @@ windows with a unified title bar. It borrows the layout people know from
 macOS but none of Apple's artwork, names or icons; everything is drawn
 here or comes from open projects: XFCE's own panel and plugins for the
 menu bar, NovaDock for the dock. The whole story (each part, the traps, what we
-tried and left out) is in [desktop/README.md](desktop/README.md).
+tried and left out) is in the module's `README.md`.
+
+Paths are in the module's folder.
 
 | Part | What | Where |
 |---|---|---|
-| Widgets | GTK's built-in Adwaita, dark, plus menus with rounded bottom corners (in the user's CSS, which outranks the applications' own) | theme `Ghostdock`: `desktop/rootfs/usr/share/themes/Ghostdock/gtk-3.0/gtk.css` (and `gtk-dark.css`, the same, for applications that ask for a dark variant) |
-| Window frames | xfwm4 theme: title bar in Adwaita's toolbar colour, rounded top corners, hairline border, dot buttons on the left (maximize in phosphor). | drawn by `desktop/theme/xfwm4.py` at build time: `Ghostdock` (dark) and `Ghostdock-Light`, each at 1x and 2x (`-xhdpi`) |
+| Widgets | GTK's built-in Adwaita, dark, plus menus with rounded bottom corners (in the user's CSS, which outranks the applications' own) | theme `Ghostdock`: `rootfs/usr/share/themes/Ghostdock/gtk-3.0/gtk.css` (and `gtk-dark.css`, the same, for applications that ask for a dark variant) |
+| Window frames | xfwm4 theme: title bar in Adwaita's toolbar colour, rounded top corners, hairline border, dot buttons on the left (maximize in phosphor). | drawn by the module's `theme/xfwm4.py` when it installs: `Ghostdock` (dark) and `Ghostdock-Light`, each at 1x and 2x (`-xhdpi`) |
 | Menu bar | xfce4-panel, dark: the Ghostdock mark (`ghostdock-symbolic`, the applications menu), the active app's menus (xfce4-appmenu-plugin with appmenu-gtk3-module), tray, sound, clock | `xfce4-panel.xml`; its style in `rootfs/etc/skel/.config/gtk-3.0/gtk.css` (the panel's own CSS outranks a theme's) |
-| Dock | [NovaDock](https://github.com/novik133/NovaDock) (GPL-3.0), built from a pinned commit with `desktop/novadock.patch`; theme `ghostdock-dark` (`ghostdock` is the light one), a gentle magnification on hover (1.3; measured at no noticeable CPU next to the stream) | `rootfs/usr/share/novadock`, `rootfs/etc/skel/.config/novadock` |
+| Dock | [NovaDock](https://github.com/novik133/NovaDock) (GPL-3.0), built from a pinned commit with the module's `novadock.patch`; theme `ghostdock-dark` (`ghostdock` is the light one), a gentle magnification on hover (1.3; measured at no noticeable CPU next to the stream) | `rootfs/usr/share/novadock`, `rootfs/etc/skel/.config/novadock` |
 | Desktop menus | with the desktop focused, the menu bar shows Desktop, Files, Documents, Music, Pictures and Video (the appmenu plugin's desktop menus) instead of "xfdesktop" with New and Quit | `rootfs/usr/lib/ghostdock/desktop-menu`, started from `/etc/xdg/autostart` |
 | Session | the package's own (xfwm4, xfsettingsd, xfce4-panel, Thunar's daemon, xfdesktop), not saved on exit. NovaDock starts from `/etc/xdg/autostart` | `xfce4-session.xml` |
 | Icons, cursor | Papirus-Dark, Adwaita | `xsettings.xml` |
@@ -478,7 +502,8 @@ only: its Python wheels are x86_64 builds for CPython 3.14. On another machine,
 build both images with `--platform linux/amd64`.
 
 ```sh
-docker build -f images/desktop/Dockerfile --build-arg HEADLESS=gdo-headless -t gdo-desktop images
+docker build -f images/desktop/Dockerfile --build-arg HEADLESS=gdo-headless \
+  --build-context desktop-module=requirement-modules/ghostdock/desktop -t gdo-desktop images
 ```
 
 They boot only as a Server: push a build to a registry the instance reads and

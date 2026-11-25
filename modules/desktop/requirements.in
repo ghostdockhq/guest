@@ -1,6 +1,6 @@
 # Selkies and its two native libraries, from their releases. The lock next to
 # this file (requirements.txt) pins every dependency with hashes; regenerate
-# it with images/desktop/lock.sh after changing a line here.
+# it with lock.sh after changing a line here.
 #
 # pixelflux: the build linuxserver.io ships with Selkies 2.0.0 (thelamer is
 # linuxserver.io's lead and a Selkies maintainer); the Selkies project's own

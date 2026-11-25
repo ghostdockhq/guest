@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
+version: 2
+release: 1.0.0
+title: Desktop
+description: >-
+  Adds Ghostdock's desktop to a Server: XFCE in the browser, streamed by Selkies, on the private
+  URL titled Desktop, the same desktop as Server · Desktop, which is built from this module. Installs
+  Ubuntu's packages, Firefox from Mozilla, Selkies from its releases (every package pinned by hash),
+  and builds the dock and the menu bar's appmenu plugin from pinned source. Takes about ten
+  minutes; a Server with 2 CPUs and 4 GiB or more is comfortable. Needs Ghostdock's headless OS. On
+  a desktop Server it changes nothing, or brings an older one's desktop up to this release.
+touches:
+  root: true
+  hosts:
+    - '*.ubuntu.com'
+    - packages.mozilla.org
+    - github.com
+    - codeload.github.com
+    - '*.githubusercontent.com'
+    - gitlab.com
+requirements:
+  - id: installed
+    title: The desktop is installed
+    description: >-
+      XFCE, Selkies, the dock, the look and the desktop's services, at this module's release. A
+      later release installs again over it, leaving the person's own settings in their home.
+    user: root
+    timeout: 3600
+    check: sh "$GHOSTDOCK_MODULE_DIR/install.sh" check
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/install.sh" install
+  - id: running
+    title: The desktop is running
+    description: The display, the login session of the login user, and Selkies' stream.
+    user: root
+    dependsOn: [installed]
+    interval: 60
+    check: sh "$GHOSTDOCK_MODULE_DIR/install.sh" running
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/install.sh" start
+  - id: desktop
+    title: Desktop
+    description: The desktop in the browser, for the organization's members.
+    url:
+      port: 14080

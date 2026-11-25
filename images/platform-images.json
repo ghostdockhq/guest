@@ -10,6 +10,7 @@
     {
       "name": "desktop",
       "base": "headless",
+      "contexts": { "desktop-module": "requirement-modules/ghostdock/desktop" },
       "edition": "Desktop",
       "resources": { "cpu": 2, "memoryGiB": 4 }
     },

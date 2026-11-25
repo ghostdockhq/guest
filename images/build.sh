@@ -3,7 +3,9 @@
 # dated tag <tag>-<stamp>, nothing else (publish-platform-images.yml moves -rc afterwards). In
 # the list's order, each image on its base of this same run, by digest, so the images of one
 # release share one base: an image with "base": "headless" gets the build argument
-# HEADLESS=<namespace>/headless@<digest>.
+# HEADLESS=<namespace>/headless@<digest>. An image's "contexts" are named build contexts, each a
+# folder of the repository ({"desktop-module": "requirement-modules/ghostdock/desktop"}): the
+# desktop is built from its requirement module.
 #
 #   images/build.sh <out.json>
 #
@@ -19,6 +21,7 @@ set -euo pipefail
 out=${1:?usage: images/build.sh <out.json>}
 : "${STAMP:?}" "${UBUNTU_SNAPSHOT?}" "${IMAGE_CREATED?}" "${IMAGE_REVISION?}"
 here=$(cd "$(dirname "$0")" && pwd)
+repo=$(dirname "$here")
 list="$here/platform-images.json"
 namespace=$(jq -er .namespace "$list")
 tag=$(jq -er .tag "$list")
@@ -33,6 +36,11 @@ while read -r name base; do
 		--build-arg "IMAGE_CREATED=$IMAGE_CREATED"
 		--build-arg "IMAGE_REVISION=$IMAGE_REVISION"
 	)
+	while read -r context folder; do
+		[ -n "$context" ] || continue
+		[ -d "$repo/$folder" ] || { echo "::error::$name's context $context: no folder $folder" >&2; exit 1; }
+		args+=(--build-context "$context=$repo/$folder")
+	done < <(jq -r --arg name "$name" '.images[] | select(.name == $name) | .contexts // {} | to_entries[] | "\(.key) \(.value)"' "$list")
 	if [ -n "$base" ]; then
 		from=$(jq -r --arg base "$base" '.[$base] // empty' <<<"$built")
 		[ -n "$from" ] || { echo "::error::$name is built on $base, which the list does not build before it" >&2; exit 1; }

@@ -18,10 +18,10 @@ The images built from them contain software of others, each under its own licens
 - Selkies and its Python dependencies (desktop): https://github.com/selkies-project/selkies,
   MPL-2.0; each package keeps its license in /opt/selkies (its dist-info).
 - NovaDock (desktop): https://github.com/novik133/NovaDock, GPL-3.0. Its corresponding source is
-  the upstream commit pinned in images/desktop/Dockerfile (NOVADOCK_COMMIT) plus
-  images/desktop/novadock.patch in this repository. Its license is in /usr/share/doc/novadock.
+  the upstream commit pinned in modules/desktop/install.sh (NOVADOCK_COMMIT) plus
+  modules/desktop/novadock.patch in this repository. Its license is in /usr/share/doc/novadock.
 - xfce4-appmenu-plugin from vala-panel-appmenu (desktop): LGPL-3.0, Ubuntu's release
-  (/usr/share/doc/xfce4-appmenu-plugin/copyright) built with images/desktop/appmenu.patch in this
+  (/usr/share/doc/xfce4-appmenu-plugin/copyright) built with modules/desktop/appmenu.patch in this
   repository.
 - Firefox (desktop): Mozilla's package from packages.mozilla.org, MPL-2.0.
 

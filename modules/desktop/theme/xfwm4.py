@@ -163,7 +163,7 @@ def button(s, bg, name, state):
 
 
 THEMERC = """\
-# Ghostdock: drawn by images/desktop/theme/xfwm4.py
+# Ghostdock: drawn by theme/xfwm4.py of the module ghostdock/desktop
 active_text_color={text_active}
 inactive_text_color={text_inactive}
 title_alignment=center

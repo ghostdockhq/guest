@@ -6,8 +6,8 @@ the base image and the guest kernel's configuration.
 
 | Directory | What |
 |---|---|
-| [images/](images/) | The platform OS images: [headless](images/headless/), [desktop](images/desktop/) and [actions-runner](images/actions-runner/), published on Docker Hub as [`ghostdockhq/*`](https://hub.docker.com/u/ghostdockhq). How they boot, what they contain, how they are built, validated and released: [images/README.md](images/README.md). |
-| [modules/](modules/) | Ghostdock's requirement modules: [github-sign-in](modules/github-sign-in/), [claude-sign-in](modules/claude-sign-in/), [google-chrome](modules/google-chrome/) and [claude-remote-control](modules/claude-remote-control/), published on Docker Hub as `ghostdockhq/module-<name>`. What they are and how versions work: [modules/README.md](modules/README.md). |
+| [images/](images/) | The platform OS images: [headless](images/headless/), [desktop](images/desktop/) (built from the module [desktop](modules/desktop/)) and [actions-runner](images/actions-runner/), published on Docker Hub as [`ghostdockhq/*`](https://hub.docker.com/u/ghostdockhq). How they boot, what they contain, how they are built, validated and released: [images/README.md](images/README.md). |
+| [modules/](modules/) | Ghostdock's requirement modules: [github-sign-in](modules/github-sign-in/), [claude-sign-in](modules/claude-sign-in/), [google-chrome](modules/google-chrome/), [claude-remote-control](modules/claude-remote-control/) and [desktop](modules/desktop/), published on Docker Hub as `ghostdockhq/module-<name>`. What they are and how versions work: [modules/README.md](modules/README.md). |
 
 ## Build your own
 

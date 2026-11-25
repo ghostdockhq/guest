@@ -11,6 +11,7 @@ The module format, how modules are used, pinned and published:
 | [claude-sign-in](claude-sign-in/) | Installs Claude Code for the login user and signs it in with a claude.ai account. |
 | [google-chrome](google-chrome/) | Installs Google Chrome from Google, once a person accepts its terms. |
 | [claude-remote-control](claude-remote-control/) | Runs `claude remote-control` in a folder as a service of the login user. |
+| [desktop](desktop/) | Adds Ghostdock's desktop (XFCE in the browser, streamed by Selkies) to a Server, with its Desktop URL. The desktop image is built from it. |
 
 **Where they are published.** Each folder is published to Docker Hub as an OCI artifact,
 `ghostdockhq/module-<name>`, tagged with the `release` in its `module.yaml` (`1.0.0`). Each
@@ -25,5 +26,6 @@ says `@1` picks the highest `1.x.y` the next time it is saved.
 **Reviewed.** Every change to these modules is reviewed before it is published, and Ghostdock
 marks them Curated.
 
-**What they download.** The modules contain no one else's software. When they run on a VM, they
-download it from its maker, each under its own terms: [NOTICE](../NOTICE).
+**What they download.** The modules contain no one else's software (the desktop's pins, patches
+and look are ours). When they run on a VM, they download it from its maker, each under its own
+terms: [NOTICE](../NOTICE).

@@ -1,5 +1,5 @@
 # Selkies streams display :1 and its audio to the browser and sends input
-# back, on the port in selkies.env (the Dockerfile's DESKTOP_PORT, which the
+# back, on the port in selkies.env (the module's Desktop URL, which the image's
 # ghostdock.url.desktop.port label names too). Its own login is off: it
 # is reached only through gdo-ingress, on the private VM URL titled
 # Desktop, which signs the user in, or on the private network's HTTPS name,

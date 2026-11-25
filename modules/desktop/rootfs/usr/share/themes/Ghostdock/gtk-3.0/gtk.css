@@ -1,6 +1,6 @@
 /* Ghostdock: GTK's own Adwaita, dark, with a few refinements for the
    desktop in the browser. The window frames (../xfwm4) are drawn by
-   images/desktop/theme/xfwm4.py. */
+   theme/xfwm4.py of the module ghostdock/desktop. */
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
 
 /* Menus: rounded, roomier rows, the accent on hover. */

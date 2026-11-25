@@ -1,8 +1,13 @@
 # The desktop's look
 
-How the desktop image looks the way it does: which parts make it up, where
-each one is configured, and the traps we found on the way. The overview
-table is in [../README.md](../README.md#look); this page is the detail.
+The requirement module `ghostdock/desktop`: Ghostdock's desktop, which it adds
+to a Server and which the desktop image (`ghostdockhq/desktop`) is built from.
+`install.sh` installs it (`module.yaml` runs it); how the desktop works is in
+images/README.md, *Desktop*.
+
+This page is how the desktop looks the way it does: which parts make it up,
+where each one is configured, and the traps we found on the way. The overview
+table is in images/README.md, *Look*.
 
 The goal: a dark, quiet desktop that feels at home next to macOS (a menu bar
 on top, a dock at the bottom, unified title bars) without pretending to be
@@ -26,19 +31,19 @@ a GPU, and every frame is encoded for the browser by Selkies.
 | Fonts | Inter (interface), JetBrains Mono (code) | `xsettings.xml` |
 | Terminal | xfce4-terminal in brand colours | `xfce4-terminal.xml` |
 | Firefox | dark, no first-run screens or sponsored tiles | `rootfs/etc/firefox/policies/policies.json` |
-| Browser tab | title "Desktop · Ghostdock", the platform's icons, the sidebar in brand colors | [`web/`](web/), applied in the Dockerfile; `gdo-selkies.service` |
+| Browser tab | title "Desktop · Ghostdock", the platform's icons, the sidebar in brand colors | [`web/`](web/), applied by `install.sh`; `gdo-selkies.service` |
 | Scaling | an integer window scale from Selkies' DPI | `rootfs/usr/lib/ghostdock/desktop-bin/xfconf-query` |
 
 Everything XFCE reads is a system channel in
 `rootfs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/`: a user's own changes land
 in their home and win. Per-user files come from `rootfs/etc/skel/` (`ghost`
-comes from the headless image, so the Dockerfile copies them into its home
-after `rootfs`).
+comes from the headless image, so `install.sh` copies them into its home
+after `rootfs`, without replacing a file `ghost` already has).
 
 ## Window frames
 
 [`theme/xfwm4.py`](theme/xfwm4.py) draws every frame piece with Pillow at
-build time, at 4x and scaled down for clean edges:
+install time, at 4x and scaled down for clean edges:
 
 - A 28px title bar in the colour of Adwaita's toolbar, so title bar and
   toolbar read as one header. Rounded top corners (10px), a hairline border,
@@ -121,7 +126,7 @@ so every start is the same.
 ## Dock
 
 [NovaDock](https://github.com/novik133/NovaDock) (GPL-3.0, Vala), built in
-the Dockerfile's `build` stage from a pinned commit (tarball by checksum)
+`install.sh` from a pinned commit (tarball by checksum)
 with [`novadock.patch`](novadock.patch), and started from
 `/etc/xdg/autostart`:
 
@@ -141,7 +146,7 @@ icons 1.3x on hover (no measurable CPU next to the stream).
 
 ## Wallpaper
 
-[`theme/wallpaper.py`](theme/wallpaper.py) draws two at build time, 3840x2160:
+[`theme/wallpaper.py`](theme/wallpaper.py) draws two at install time, 3840x2160:
 a quiet sea at night (the default) and at dawn, with a long pier from the
 right and, at its end, the ghost from the mark (docs/brand.md, "Ghost on the
 Pier"). The ghost is about 2% of the width, flat, in the mark's geometry and
@@ -180,7 +185,7 @@ What we change:
   `SELKIES_UI_TITLE=Ghostdock`, `SELKIES_UI_SHOW_LOGO=false` (the logo is
   drawn inside Selkies' bundle, so it is hidden rather than replaced).
 
-The Dockerfile copies `web/` over Selkies' files, rewrites the links in
+`install.sh` copies `web/` over Selkies' files, rewrites the links in
 `index.html` and fails the build when any of them is not where it expects.
 Selkies serves only the files present when it starts: a file added later
 answers 404 until `gdo-selkies` restarts.
