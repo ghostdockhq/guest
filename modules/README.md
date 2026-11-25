@@ -18,6 +18,9 @@ The module format, how modules are used, pinned and published:
 artifact carries this folder, the Apache License 2.0 as `LICENSE`, and the annotations
 `org.opencontainers.image.source` (its folder here), `org.opencontainers.image.version`,
 `org.opencontainers.image.licenses` (`Apache-2.0`) and `org.opencontainers.image.vendor`.
+A file or folder whose name starts with a dot is not published (`readModuleFolder`): a module that
+needs one keeps it under another name and puts it in place itself, as the desktop does with
+`skel-config/` for `/etc/skel/.config`.
 
 **A published version never changes.** A change to a module ships as a new release: a fix as
 `1.0.1`, a new optional value as `1.1.0`, a change that breaks templates as `2.0.0`. A template that

@@ -457,15 +457,15 @@ Paths are in the module's folder.
 |---|---|---|
 | Widgets | GTK's built-in Adwaita, dark, plus menus with rounded bottom corners (in the user's CSS, which outranks the applications' own) | theme `Ghostdock`: `rootfs/usr/share/themes/Ghostdock/gtk-3.0/gtk.css` (and `gtk-dark.css`, the same, for applications that ask for a dark variant) |
 | Window frames | xfwm4 theme: title bar in Adwaita's toolbar colour, rounded top corners, hairline border, dot buttons on the left (maximize in phosphor). | drawn by the module's `theme/xfwm4.py` when it installs: `Ghostdock` (dark) and `Ghostdock-Light`, each at 1x and 2x (`-xhdpi`) |
-| Menu bar | xfce4-panel, dark: the Ghostdock mark (`ghostdock-symbolic`, the applications menu), the active app's menus (xfce4-appmenu-plugin with appmenu-gtk3-module), tray, sound, clock | `xfce4-panel.xml`; its style in `rootfs/etc/skel/.config/gtk-3.0/gtk.css` (the panel's own CSS outranks a theme's) |
-| Dock | [NovaDock](https://github.com/novik133/NovaDock) (GPL-3.0), built from a pinned commit with the module's `novadock.patch`; theme `ghostdock-dark` (`ghostdock` is the light one), a gentle magnification on hover (1.3; measured at no noticeable CPU next to the stream) | `rootfs/usr/share/novadock`, `rootfs/etc/skel/.config/novadock` |
+| Menu bar | xfce4-panel, dark: the Ghostdock mark (`ghostdock-symbolic`, the applications menu), the active app's menus (xfce4-appmenu-plugin with appmenu-gtk3-module), tray, sound, clock | `xfce4-panel.xml`; its style in `skel-config/gtk-3.0/gtk.css` (the panel's own CSS outranks a theme's) |
+| Dock | [NovaDock](https://github.com/novik133/NovaDock) (GPL-3.0), built from a pinned commit with the module's `novadock.patch`; theme `ghostdock-dark` (`ghostdock` is the light one), a gentle magnification on hover (1.3; measured at no noticeable CPU next to the stream) | `rootfs/usr/share/novadock`, `skel-config/novadock` |
 | Desktop menus | with the desktop focused, the menu bar shows Desktop, Files, Documents, Music, Pictures and Video (the appmenu plugin's desktop menus) instead of "xfdesktop" with New and Quit | `rootfs/usr/lib/ghostdock/desktop-menu`, started from `/etc/xdg/autostart` |
 | Session | the package's own (xfwm4, xfsettingsd, xfce4-panel, Thunar's daemon, xfdesktop), not saved on exit. NovaDock starts from `/etc/xdg/autostart` | `xfce4-session.xml` |
 | Icons, cursor | Papirus-Dark, Adwaita | `xsettings.xml` |
 | Fonts | Inter for the interface, JetBrains Mono for code | `xsettings.xml` |
 | Desktop icons | the files in `~/Desktop`, nothing else (no Home, File System, Trash or drives) | `xfce4-desktop.xml` |
 | Wallpaper | a quiet harbor with the Ghost on the Pier, small, at the end of the deck: night (the default) and dawn | drawn by `desktop/theme/wallpaper.py` at build time |
-| Terminal | brand colours: terminal ground, fog text, phosphor cursor | `xfce4-terminal.xml`, padding in `rootfs/etc/skel/.config/gtk-3.0/gtk.css` |
+| Terminal | brand colours: terminal ground, fog text, phosphor cursor | `xfce4-terminal.xml`, padding in `skel-config/gtk-3.0/gtk.css` |
 | Browser tab | title "Desktop · Ghostdock" and the brand's tile icon, over Selkies' own | `desktop/web/` (icons copied from `brand/`), applied in the Dockerfile |
 | Firefox | dark, no onboarding, Terms of Use prompt, sponsored tiles or bookmarks bar | `rootfs/etc/firefox/policies/policies.json` |
 

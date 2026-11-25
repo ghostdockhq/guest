@@ -22,9 +22,9 @@ a GPU, and every frame is encoded for the browser by Selkies.
 | Window manager | xfwm4, with its own compositor on | `rootfs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml` |
 | Window frames | our theme `Ghostdock`, drawn by [`theme/xfwm4.py`](theme/xfwm4.py) | the script; `xfwm4.xml` picks it |
 | Widgets | GTK's built-in Adwaita, dark, through our theme `Ghostdock` | `rootfs/usr/share/themes/Ghostdock/gtk-3.0/` |
-| Menu bar | xfce4-panel with Ubuntu's plugins: applications menu, appmenu (global menu), tray, pulseaudio, clock | `xfce4-panel.xml`; style in `rootfs/etc/skel/.config/gtk-3.0/gtk.css` |
+| Menu bar | xfce4-panel with Ubuntu's plugins: applications menu, appmenu (global menu), tray, pulseaudio, clock | `xfce4-panel.xml`; style in `skel-config/gtk-3.0/gtk.css` |
 | Desktop menus | the appmenu plugin's own Desktop, Files, Documents, … menus when the desktop is focused | `rootfs/usr/lib/ghostdock/desktop-menu` |
-| Dock | [NovaDock](https://github.com/novik133/NovaDock), built from a pinned commit with [`novadock.patch`](novadock.patch) | `rootfs/usr/share/novadock/themes/`, `rootfs/etc/skel/.config/novadock/config.ini` |
+| Dock | [NovaDock](https://github.com/novik133/NovaDock), built from a pinned commit with [`novadock.patch`](novadock.patch) | `rootfs/usr/share/novadock/themes/`, `skel-config/novadock/config.ini` |
 | Desktop icons | the files in `~/Desktop` only, without Home, File System, Trash or drives | `xfce4-desktop.xml` |
 | Wallpaper | a harbor at night with the Ghost on the Pier, drawn by [`theme/wallpaper.py`](theme/wallpaper.py) | `xfce4-desktop.xml` |
 | Icons | Papirus-Dark; our mark `ghostdock-symbolic` in the menu bar | `xsettings.xml`, `rootfs/usr/share/icons/hicolor/` |
@@ -36,7 +36,7 @@ a GPU, and every frame is encoded for the browser by Selkies.
 
 Everything XFCE reads is a system channel in
 `rootfs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/`: a user's own changes land
-in their home and win. Per-user files come from `rootfs/etc/skel/` (`ghost`
+in their home and win. Per-user files come from `skel-config/`, which `install.sh` puts in `/etc/skel/.config` (`ghost`
 comes from the headless image, so `install.sh` copies them into its home
 after `rootfs`, without replacing a file `ghost` already has).
 
@@ -71,7 +71,7 @@ The theme `Ghostdock` imports GTK's built-in Adwaita dark and adds little
 dark variant: without it GTK falls back to plain Adwaita and skips ours).
 
 Most of our CSS lives in the **user's** CSS,
-`rootfs/etc/skel/.config/gtk-3.0/gtk.css`, because GTK ranks it above an
+`skel-config/gtk-3.0/gtk.css`, because GTK ranks it above an
 application's own CSS, which in turn ranks above any theme:
 
 - The menu bar (xfce4-panel styles its widgets itself). Every rule names

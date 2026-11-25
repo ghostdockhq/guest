@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
 version: 2
-release: 1.0.0
+release: 1.0.1
 title: Desktop
 description: >-
   Adds Ghostdock's desktop to a Server: XFCE in the browser, streamed by Selkies, on the private

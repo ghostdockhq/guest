@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- The menu bar: the Ghostdock mark (applications menu), the active
      application's menus (appmenu), then tray, sound and clock. Styled dark in the user's CSS
-     (rootfs/etc/skel/.config/gtk-3.0/gtk.css): the panel's own CSS outranks
+     (skel-config/gtk-3.0/gtk.css): the panel's own CSS outranks
      a theme's. Its dark-mode stays off, as the theme is dark already. The dock is NovaDock (/etc/xdg/autostart), not a panel. Sizes
      are logical pixels; the window scale doubles them on a 2x screen.
      Shipping the channel also keeps the panel's "first start" question

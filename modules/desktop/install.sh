@@ -233,6 +233,10 @@ install_desktop() {
 
 	cp -r "$work/out/." /
 	cp -r "$here/rootfs/." /
+	# The per-user files for /etc/skel/.config: a module carries no file or folder whose name starts
+	# with a dot (readModuleFolder), so they live in skel-config.
+	install -d /etc/skel/.config
+	cp -r "$here/skel-config/." /etc/skel/.config/
 	# A published module keeps no file modes (only *.sh are executable in it): the desktop's programs
 	# are made executable here, the same in the image and on a Server.
 	# tests/nuxt/images/desktop-module.test.ts keeps this list equal to rootfs' executables.
@@ -251,7 +255,7 @@ install_desktop() {
 	# The session runs as ghost; sound and the display need these groups. ghost's home is older than
 	# /etc/skel's desktop files: they go in, without replacing a file ghost already has.
 	usermod --append --groups audio,video ghost
-	cp -rn /etc/skel/.config /home/ghost/
+	cp -r --update=none /etc/skel/.config /home/ghost/
 	chown -R ghost:ghost /home/ghost/.config
 	# ghost lingers: logind starts ghost's user manager at boot and keeps it, with /run/user/1000,
 	# PipeWire and the session D-Bus, across the desktop's Log Out, so Selkies' sound and the bus never
