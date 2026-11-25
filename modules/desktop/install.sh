@@ -4,7 +4,7 @@
 # adds it to a running Server, and the desktop image (images/desktop/Dockerfile) is built by running
 # this same script on the headless image.
 #
-#   install.sh check      installed, at this module's release (exit 0) or not (exit 1)
+#   install.sh check      installed as this module installs it (exit 0) or not (exit 1)
 #   install.sh install    installs it on a running Server and starts it
 #   install.sh image      installs it while an image is built (no systemd running)
 #   install.sh running    every desktop unit active (exit 0) or not
@@ -22,8 +22,17 @@
 set -eu
 
 here=$(cd "$(dirname "$0")" && pwd)
-release=$(sed -n 's/^release: *//p' "$here/module.yaml")
 marker=/usr/lib/ghostdock/desktop-module
+
+# What this module installs, as one digest of its files: every file but module.yaml (its release
+# and settings: a new release that changes only those installs nothing again), the LICENSE a
+# published module carries and the README. The same in the image build and on a Server.
+content() {
+	(cd "$here" && find . -type f ! -name module.yaml ! -name LICENSE ! -name README.md ! -path '*/.*' |
+		LC_ALL=C sort | while IFS= read -r file; do
+			printf '%s %s\n' "$file" "$(sha256sum "$file" | cut -c1-64)"
+		done | sha256sum | cut -c1-64)
+}
 
 NOVADOCK_COMMIT=c94ef356f9f5ad1645d20de38f030f699424f59f
 NOVADOCK_SHA256=a33a8acdc2105226b45d031115ae8c245b831fbe07ee480fc9b3391d714b6e9e
@@ -78,7 +87,7 @@ installed_packages() {
 }
 
 installed() {
-	[ -f "$marker" ] && [ "$(cat "$marker")" = "$release" ]
+	[ -f "$marker" ] && [ "$(cat "$marker")" = "$(content)" ]
 }
 
 running() {
@@ -273,7 +282,7 @@ install_desktop() {
 	# shellcheck disable=SC2086
 	systemctl enable $UNITS
 
-	printf '%s\n' "$release" >"$marker"
+	content >"$marker"
 }
 
 start_desktop() {

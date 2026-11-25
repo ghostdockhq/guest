@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
 version: 2
-release: 1.0.1
+release: 1.1.0
 title: Desktop
 description: >-
   Adds Ghostdock's desktop to a Server: XFCE in the browser, streamed by Selkies, on the private
@@ -8,7 +8,12 @@ description: >-
   Ubuntu's packages, Firefox from Mozilla, Selkies from its releases (every package pinned by hash),
   and builds the dock and the menu bar's appmenu plugin from pinned source. Takes about ten
   minutes; a Server with 2 CPUs and 4 GiB or more is comfortable. Needs Ghostdock's headless OS. On
-  a desktop Server it changes nothing, or brings an older one's desktop up to this release.
+  a desktop Server it changes nothing, or brings an older one's desktop up to this release. Its
+  work alone keeps the VM awake at most 4 hours after the last input, as on the desktop image.
+# A desktop's work alone (a video playing for nobody) keeps the VM awake 4 hours after the last
+# input, as on the desktop image. A setting of the VM's own wins, and it leaves with this module.
+settings:
+  workKeepsAwakeMinutes: 240
 touches:
   root: true
   hosts:

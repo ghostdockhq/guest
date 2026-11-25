@@ -294,10 +294,13 @@ from the live archive and starts it, and the module makes the Desktop URL.
 `images/desktop/Dockerfile` keeps only what an image has: its labels, its
 version file and the snapshot. One definition, two ways to get it: a change
 to the desktop is a change to the module (and a new module release), which
-the next image build picks up. The module's check is its release
-(`/usr/lib/ghostdock/desktop-module`), so adding it to a desktop Server of
-that release changes nothing, and adding it to an older one installs the
-current desktop over it. A Server whose guest reports a desktop shows
+the next image build picks up. The module's check compares a digest of its
+install files (everything but `module.yaml`, its README and LICENSE) with
+`/usr/lib/ghostdock/desktop-module`, so adding it to a desktop Server built
+from the same files changes nothing, a release that changes only its
+settings installs nothing again, and adding it to an older one installs the
+current desktop over it. Its `settings` give the desktop's 4-hour
+`workKeepsAwakeMinutes`, as the image's label does. A Server whose guest reports a desktop shows
 "Server · Desktop", however it got one.
 
 The units, in this order:
