@@ -1,11 +1,14 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
 version: 2
-release: 2.0.0
+release: 2.1.0
 title: Claude Remote Control
 description: >-
   Runs claude remote-control in a folder as a service of the VM's login user, so you work with
-  Claude Code on the VM from claude.ai or the Claude app. It starts again after every boot, and
-  first reattaches to the session it last served. Signs in with ghostdock/claude-sign-in.
+  Claude Code on the VM from claude.ai or the Claude app. It starts again after every boot and
+  brings back the sessions it served before (for about four hours after it stopped). It answers
+  Remote Control's one-time "Enable Remote Control?" for the login user, keeps a git checkout in
+  the folder healthy after a power-off, and waits for a new sign-in when claude.ai refuses the
+  login. Signs in with ghostdock/claude-sign-in.
 with:
   folder:
     title: Folder
@@ -34,6 +37,20 @@ requirements:
     title: The folder exists
     description: Waits for the folder; whatever creates it (a clone, a script) satisfies it.
     check: test -d "$(sh "$GHOSTDOCK_MODULE_DIR/folder.sh")"
+  - id: repository-health
+    title: The folder's git checkout is healthy
+    description: >-
+      After a power-off without a clean shutdown, removes stale git locks and empty objects,
+      restores an empty branch from its reflog, rebuilds a broken index from HEAD and fetches
+      what is missing (at most once per boot), never touching the working tree. Checks
+      connectivity only, once per boot. Remote Control does not wait for it. A folder that is not
+      itself a git checkout passes.
+    dependsOn: [folder]
+    interval: 3600
+    timeout: 900
+    check: sh "$GHOSTDOCK_MODULE_DIR/repo-health.sh" check
+    apply:
+      run: sh "$GHOSTDOCK_MODULE_DIR/repo-health.sh" repair
   - id: folder-trusted
     title: Claude Code trusts the folder
     description: Remote Control asks whether to trust a new folder, with no terminal to ask on.
