@@ -40,6 +40,13 @@ COPY headless/rootfs/usr/lib/ghostdock/apt-snapshot /usr/lib/ghostdock/apt-snaps
 # for thin pools, which --no-install-recommends would skip. Not multipath-tools or open-iscsi
 # (SAN tooling a VM has no use for), not snapd.
 #
+# System and hardware tools of ubuntu-standard, so the usual first commands on a new server work:
+# pciutils (lspci), usbutils (lsusb), dmidecode, lshw, ethtool, hdparm, parted, dosfstools,
+# ntfs-3g, numactl, sysstat (sar, iostat), trace-cmd, bcache-tools (ubuntu-server; the kernel has
+# bcache) and util-linux-extra (hwclock). About 14 MB. Compared 2026-11-26 with ubuntu-minimal,
+# ubuntu-standard and ubuntu-server 26.04; what of theirs stays out, and why:
+# https://docs.ghostdock.ai/vms/ubuntu-differences
+#
 # apparmor: Ubuntu's profiles load at boot (apparmor.service) and Docker confines every container
 # with docker-default, as on an Ubuntu server; the VM's kernel has AppArmor. Unprivileged user
 # namespaces stay open: the kernel has no Ubuntu userns restriction.
@@ -73,6 +80,8 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
       iputils-tracepath mtr-tiny inetutils-telnet tcpdump tmux screen \
       kmod \
       lvm2 thin-provisioning-tools mdadm xfsprogs btrfs-progs cryptsetup \
+      pciutils usbutils dmidecode lshw ethtool hdparm parted dosfstools ntfs-3g numactl \
+      sysstat trace-cmd bcache-tools util-linux-extra \
       apparmor \
  && gnupg_home=$(mktemp -d) \
  && fpr=$(GNUPGHOME="$gnupg_home" gpg --batch --show-keys --with-colons /run/ghostdock-build/docker.asc 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }') \
