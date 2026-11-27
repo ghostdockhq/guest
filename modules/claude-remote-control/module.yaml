@@ -1,14 +1,15 @@
 # yaml-language-server: $schema=https://docs.ghostdock.ai/schemas/requirements/module-v2.json
 version: 2
-release: 2.1.0
+release: 2.2.0
 title: Claude Remote Control
 description: >-
   Runs claude remote-control in a folder as a service of the VM's login user, so you work with
   Claude Code on the VM from claude.ai or the Claude app. It starts again after every boot and
   brings back the sessions it served before (for about four hours after it stopped). It answers
   Remote Control's one-time "Enable Remote Control?" for the login user, keeps a git checkout in
-  the folder healthy after a power-off, and waits for a new sign-in when claude.ai refuses the
-  login. Signs in with ghostdock/claude-sign-in.
+  the folder healthy after a power-off, waits for a new sign-in when claude.ai refuses the
+  login, and gives Claude Code a rule to put files for you inside the folder, where Remote
+  Control's file viewer opens them. Signs in with ghostdock/claude-sign-in.
 with:
   folder:
     title: Folder
@@ -77,6 +78,16 @@ requirements:
     check: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" check-hooks
     apply:
       run: sh "$GHOSTDOCK_MODULE_DIR/settings.sh" hooks
+  - id: user-files
+    title: Claude Code puts files for you inside the folder
+    description: >-
+      Remote Control's file viewer opens only files inside the session's folder. This rule, in
+      ~/.claude/rules/ (which Claude Code reads in every project), tells Claude Code to write what
+      you should open to .claude/out/ there, never committed. It is yours to edit: a change you
+      make on the VM stays.
+    file:
+      path: ~/.claude/rules/ghostdock-remote-control.md
+      from: rules/remote-control.md
   - id: chrome-extension
     title: Claude in Chrome
     description: >-
