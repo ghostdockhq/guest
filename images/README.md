@@ -109,13 +109,15 @@ where SSH, the terminal and commands land. The OCI labels
 commit). The desktop inherits the `ghostdock.*` labels and sets its own OCI
 ones.
 
-Masked units: consoles, the kernel's module loader, networkd, resolved,
+Masked units: consoles, networkd, resolved,
 timesyncd, systemd-firstboot and e2scrub. The network and DNS are gdo-guest's;
 the host sets the clock at every boot and wake, and chrony keeps it in between
 (Ubuntu's NTS servers, and the host's clock through `/dev/ptp0`, which needs no
-network; on Docker and Incus hosts its unit skips itself, as in any container). The kernel loads no modules: every driver is built in, so
-`modprobe` of one succeeds (the image has the kernel's built-in index) and loads nothing, and a
-driver that is not built in cannot be added.
+network; on Docker and Incus hosts its unit skips itself, as in any container). The kernel is
+Ubuntu's, with modules loaded on demand: on Ghostdock Cloud the platform's
+`os-init` mounts the kernel's module tree at `/usr/lib/modules/<release>` (writable for DKMS, kept
+on the VM's disk per release) and points the kernel's `modprobe` at the base image's `kmod`, so the
+image needs to ship neither.
 
 The same image also boots in a container (on a Ghostdock Docker host). Two
 additions apply only there. A generator,
@@ -169,10 +171,9 @@ which the platform showed as a running VM that never answered (2026-11-05).
 
 **Not supported:**
 
-- **The kernel and the boot** are the platform's: no loadable kernel modules
-  (`modprobe` of a built-in driver works; the kernel builds in what an Ubuntu
-  server would load, device-mapper thin pools and squashfs included), no
-  kernel packages of your own, no `do-release-upgrade` to another kernel.
+- **The kernel and the boot** are the platform's: Ubuntu's server kernel,
+  with its modules and DKMS, but no kernel packages of your own and no
+  `do-release-upgrade` to another kernel.
   A network manager of your own fights gdo-guest for `eth0`.
 
 ## SSH

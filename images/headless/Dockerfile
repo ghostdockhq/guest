@@ -52,8 +52,9 @@ COPY headless/rootfs/usr/lib/ghostdock/apt-snapshot /usr/lib/ghostdock/apt-snaps
 # https://docs.ghostdock.ai/vms/ubuntu-differences
 #
 # apparmor: Ubuntu's profiles load at boot (apparmor.service) and Docker confines every container
-# with docker-default, as on an Ubuntu server; the VM's kernel has AppArmor. Unprivileged user
-# namespaces stay open: the kernel has no Ubuntu userns restriction.
+# with docker-default, as on an Ubuntu server; the VM's kernel is Ubuntu's. Unprivileged
+# user namespaces are restricted as on Ubuntu (apparmor's 10-apparmor.conf): open to the programs
+# whose profile allows them (rootless Podman, Chrome, bubblewrap).
 #
 # Docker's engine with the Compose and buildx plugins, from Docker's apt
 # repository, as Docker documents it for Ubuntu servers. Docker's repository
@@ -126,16 +127,14 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
 # The VM's network and DNS are gdo-guest's: it configures eth0 from the kernel
 # command line and writes resolv.conf. The host sets the clock at every boot and
 # wake; chrony keeps it in between, so timesyncd stays masked. Consoles stay off (no password to log in with; the
-# console log is the host's), and so do the kernel's module loader (the
-# kernel loads no module, and this root ships no .ko) and e2scrub (no LVM
-# inside). kmod stays: the platform's generator mounts the kernel's index of
-# built-in drivers at /usr/lib/modules/<release>, so `modprobe br_netfilter`
-# (k3s, installers) finds the driver built in and succeeds without a load. systemd-firstboot would ask on the console at the first boot of
+# console log is the host's), and so does e2scrub (no LVM inside). The
+# kernel's modules load as on Ubuntu: the platform's os-init puts
+# the kernel's module tree at /usr/lib/modules/<release>, so kmod,
+# systemd-modules-load and /etc/modules-load.d work as on any server. systemd-firstboot would ask on the console at the first boot of
 # every VM. The container-only journald generator and sys-kernel mount
 # conditions live in rootfs/; they do nothing on a microVM.
 RUN systemctl mask \
       getty.target console-getty.service serial-getty@ttyS0.service \
-      systemd-modules-load.service \
       systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service \
       systemd-networkd-varlink.socket systemd-networkd-resolve-hook.socket \
       systemd-resolved.service systemd-timesyncd.service \
