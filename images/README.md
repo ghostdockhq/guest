@@ -113,7 +113,7 @@ Masked units: consoles, networkd, resolved,
 timesyncd, systemd-firstboot and e2scrub. The network and DNS are gdo-guest's;
 the host sets the clock at every boot and wake, and chrony keeps it in between
 (Ubuntu's NTS servers, and the host's clock through `/dev/ptp0`, which needs no
-network; on Docker and Incus hosts its unit skips itself, as in any container). The kernel is
+network; on Docker and Incus hosts its unit skips itself, as in any container, and so does `chrony-wait.service`, which Ubuntu ships without that condition). The kernel is
 Ubuntu's, with modules loaded on demand: on Ghostdock Cloud the platform's
 `os-init` mounts the kernel's module tree at `/usr/lib/modules/<release>` (writable for DKMS, kept
 on the VM's disk per release) and points the kernel's `modprobe` at the base image's `kmod`, so the
