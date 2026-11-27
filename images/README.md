@@ -110,8 +110,10 @@ commit). The desktop inherits the `ghostdock.*` labels and sets its own OCI
 ones.
 
 Masked units: consoles, the kernel's module loader, networkd, resolved,
-timesyncd, systemd-firstboot and e2scrub. The network, DNS and clock are
-gdo-guest's and the host's. The kernel loads no modules: every driver is built in, so
+timesyncd, systemd-firstboot and e2scrub. The network and DNS are gdo-guest's;
+the host sets the clock at every boot and wake, and chrony keeps it in between
+(Ubuntu's NTS servers, and the host's clock through `/dev/ptp0`, which needs no
+network; on Docker and Incus hosts its unit skips itself, as in any container). The kernel loads no modules: every driver is built in, so
 `modprobe` of one succeeds (the image has the kernel's built-in index) and loads nothing, and a
 driver that is not built in cannot be added.
 

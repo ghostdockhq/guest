@@ -40,6 +40,10 @@ COPY headless/rootfs/usr/lib/ghostdock/apt-snapshot /usr/lib/ghostdock/apt-snaps
 # for thin pools, which --no-install-recommends would skip. Not multipath-tools or open-iscsi
 # (SAN tooling a VM has no use for), not snapd.
 #
+# chrony keeps the clock, as on Ubuntu 26.04 (ubuntu-minimal depends on chrony or another time
+# daemon): Ubuntu's NTS servers and the host's clock through /dev/ptp0 (rootfs/etc/chrony/conf.d).
+# Its unit skips itself in a container, so on Docker and Incus hosts nothing changes.
+#
 # System and hardware tools of ubuntu-standard, so the usual first commands on a new server work:
 # pciutils (lspci), usbutils (lsusb), dmidecode, lshw, ethtool, hdparm, parted, dosfstools,
 # ntfs-3g, numactl, sysstat (sar, iostat), trace-cmd, bcache-tools (ubuntu-server; the kernel has
@@ -82,6 +86,7 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
       lvm2 thin-provisioning-tools mdadm xfsprogs btrfs-progs cryptsetup \
       pciutils usbutils dmidecode lshw ethtool hdparm parted dosfstools ntfs-3g numactl \
       sysstat trace-cmd bcache-tools util-linux-extra \
+      chrony \
       apparmor \
  && gnupg_home=$(mktemp -d) \
  && fpr=$(GNUPGHOME="$gnupg_home" gpg --batch --show-keys --with-colons /run/ghostdock-build/docker.asc 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }') \
@@ -118,9 +123,9 @@ RUN --mount=type=bind,from=certs,source=/etc/ssl/certs/ca-certificates.crt,targe
  && rm /etc/apt/apt.conf.d/docker-disable-periodic-update /etc/dpkg/dpkg.cfg.d/docker-apt-speedup \
       /etc/apt/apt.conf.d/docker-autoremove-suggests
 
-# The VM's network, DNS and clock are gdo-guest's: it
-# configures eth0 from the kernel command line and writes resolv.conf, and the
-# host keeps the clock. Consoles stay off (no password to log in with; the
+# The VM's network and DNS are gdo-guest's: it configures eth0 from the kernel
+# command line and writes resolv.conf. The host sets the clock at every boot and
+# wake; chrony keeps it in between, so timesyncd stays masked. Consoles stay off (no password to log in with; the
 # console log is the host's), and so do the kernel's module loader (the
 # kernel loads no module, and this root ships no .ko) and e2scrub (no LVM
 # inside). kmod stays: the platform's generator mounts the kernel's index of
