@@ -38,7 +38,10 @@ validates and promotes every image in it, and nothing else names them one by one
 2. **Validate.** [validate.sh](validate.sh) boots each candidate as a real Server and checks it
    (systemd, the login user, the VM's environment, SSH, apt, Docker, a stop and a start, a halt),
    then runs the image's own checks, `<name>/validate.sh`. It works against any Ghostdock
-   instance where the `ghostdock` CLI is logged in.
+   instance where the `ghostdock` CLI is logged in. [validate-container.sh](validate-container.sh)
+   boots each candidate as a Docker host (Sysbox) and an Incus host run a Server, in a system
+   container, and checks that systemd comes up with no failed unit: validate.sh boots on Cloud, and a
+   unit that behaves differently in a container (#1950) is only seen in one.
 3. **Promote.** Only a build whose every image passed moves the stable tags (`ubuntu-26.04`,
    `latest`), all images together, as a copy of the validated digests: nothing is rebuilt.
 
